@@ -28,7 +28,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   Navigator.pop(context);
                 },
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 5),
 
               const Text(
                 'Daftar',
