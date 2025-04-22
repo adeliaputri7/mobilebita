@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
+import 'package:flutter_application_1/register.dart';
 import 'splash_screen.dart'; // Untuk timer splash screen
 
 void main() {

@@ -40,7 +40,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   const Text('Jika anda sudah punya akun, anda dapat '),
                   GestureDetector(
                     onTap: () {
-                      // Arahkan ke halaman login
+                      // Navigasi ke halaman login
                     },
                     child: const Text(
                       'Login disini !',
@@ -54,13 +54,19 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               const SizedBox(height: 24),
 
-              _buildTextField('Username', 'Masukkan username anda', Icons.person),
+              // Form Input
+              _buildTextField(
+                  'Username', 'Masukkan username anda', Icons.person),
               _buildTextField('Email', 'Masukkan email anda', Icons.email),
-              _buildTextField('No Telepon', 'Masukkan  no telepon anda', Icons.phone),
-              _buildTextField('Jenis Kelamin', 'Masukkan jenis kelamin anda', Icons.people),
-              _buildTextField('Tgl Lahir', 'Masukkan tgl lahir anda', Icons.calendar_today),
+              _buildTextField(
+                  'No Telepon', 'Masukkan no telepon anda', Icons.phone),
+              _buildTextField(
+                  'Jenis Kelamin', 'Masukkan jenis kelamin anda', Icons.people),
+              _buildTextField(
+                  'Tgl Lahir', 'Masukkan tgl lahir anda', Icons.calendar_today),
               _buildPasswordField('Password', 'Masukkan password anda', true),
-              _buildPasswordField('Confirm Password', 'Konfirmasi password anda', false),
+              _buildPasswordField(
+                  'Confirm Password', 'Konfirmasi password anda', false),
 
               const SizedBox(height: 30),
 
@@ -71,10 +77,11 @@ class _RegisterPageState extends State<RegisterPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 16),
                   ),
                   onPressed: () {
-                    // aksi Sign Up
+                    // Aksi saat tombol Sign Up ditekan
                   },
                   child: const Text('Sign up'),
                 ),
@@ -86,5 +93,48 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
+  // Input field umum
   Widget _buildTextField(String label, String hint, IconData icon) {
-    return
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextFormField(
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          prefixIcon: Icon(icon),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+    );
+  }
+
+  // Input field untuk password dengan toggle visibility
+  Widget _buildPasswordField(String label, String hint, bool isPasswordField) {
+    final obscure = isPasswordField ? _obscurePassword : _obscureConfirm;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextFormField(
+        obscureText: obscure,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          prefixIcon: const Icon(Icons.lock),
+          suffixIcon: IconButton(
+            icon: Icon(obscure ? Icons.visibility_off : Icons.visibility),
+            onPressed: () {
+              setState(() {
+                if (isPasswordField) {
+                  _obscurePassword = !_obscurePassword;
+                } else {
+                  _obscureConfirm = !_obscureConfirm;
+                }
+              });
+            },
+          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+    );
+  }
+}
