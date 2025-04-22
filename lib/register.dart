@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobilebita/login.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -40,7 +41,11 @@ class _RegisterPageState extends State<RegisterPage> {
                   const Text('Jika anda sudah punya akun, anda dapat '),
                   GestureDetector(
                     onTap: () {
-                      // Navigasi ke halaman login
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const LoginPage()),
+                      ); // Navigasi ke halaman login
                     },
                     child: const Text(
                       'Login disini !',
@@ -74,9 +79,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue[400],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 40, vertical: 16),
                   ),
@@ -102,7 +104,14 @@ class _RegisterPageState extends State<RegisterPage> {
           labelText: label,
           hintText: hint,
           prefixIcon: Icon(icon),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          border: UnderlineInputBorder(),
+          enabledBorder: const UnderlineInputBorder(
+            borderSide:
+                BorderSide(color: Colors.blue), // Garis saat tidak fokus
+          ),
+          focusedBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.blue, width: 2), // Saat fokus
+          ),
         ),
       ),
     );
@@ -132,7 +141,14 @@ class _RegisterPageState extends State<RegisterPage> {
               });
             },
           ),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          border: UnderlineInputBorder(),
+          enabledBorder: const UnderlineInputBorder(
+            borderSide:
+                BorderSide(color: Colors.blue), // Garis saat tidak fokus
+          ),
+          focusedBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.blue, width: 2), // Saat fokus
+          ),
         ),
       ),
     );

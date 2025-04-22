@@ -1,21 +1,5 @@
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Login UI',
-      debugShowCheckedModeBanner: false,
-      home: LoginPage(),
-    );
-  }
-}
+import 'package:mobilebita/register.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -47,9 +31,11 @@ class _LoginPageState extends State<LoginPage> {
                 const Text('Jika anda belum punya akun, anda dapat '),
                 GestureDetector(
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Navigasi ke halaman daftar")),
-                    );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const RegisterPage()),
+                    ); // Navigasi ke halaman daftar
                   },
                   child: const Text(
                     'Daftar disini !',
@@ -68,7 +54,15 @@ class _LoginPageState extends State<LoginPage> {
               decoration: InputDecoration(
                 hintText: 'Masukkan email anda',
                 prefixIcon: Icon(Icons.email),
-                border: OutlineInputBorder(),
+                border: UnderlineInputBorder(),
+                enabledBorder: const UnderlineInputBorder(
+                  borderSide:
+                      BorderSide(color: Colors.blue), // Garis saat tidak fokus
+                ),
+                focusedBorder: const UnderlineInputBorder(
+                  borderSide:
+                      BorderSide(color: Colors.blue, width: 2), // Saat fokus
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -80,7 +74,15 @@ class _LoginPageState extends State<LoginPage> {
                 hintText: 'Masukkan password anda',
                 prefixIcon: Icon(Icons.lock),
                 suffixIcon: Icon(Icons.visibility_off),
-                border: OutlineInputBorder(),
+                border: UnderlineInputBorder(),
+                enabledBorder: const UnderlineInputBorder(
+                  borderSide:
+                      BorderSide(color: Colors.blue), // Garis saat tidak fokus
+                ),
+                focusedBorder: const UnderlineInputBorder(
+                  borderSide:
+                      BorderSide(color: Colors.blue, width: 2), // Saat fokus
+                ),
               ),
             ),
             const SizedBox(height: 8),

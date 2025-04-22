@@ -25,17 +25,12 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SizedBox.expand(
-        child: Stack(
-          children: [
-            // Background penuh satu layar
-            Positioned.fill(
-              child: Image.asset(
-                'assets/splash/splashscreen.png',
-                fit: BoxFit.cover, // Gambar akan menyesuaikan ukuran layar
-              ),
-            ),
-          ],
+      body: Center(
+        child: Image.asset(
+          'assets/splash/splashscreen.png',
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
         ),
       ),
     );
