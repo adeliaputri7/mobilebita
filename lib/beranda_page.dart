@@ -1,15 +1,255 @@
 import 'package:flutter/material.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
-class BerandaPage extends StatefulWidget {
+class BerandaPage extends StatelessWidget {
   const BerandaPage({super.key});
 
   @override
-  State<BerandaPage> createState() => _BerandaPageState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Color(0xFFF9F6F6),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // HEADER
+            Container(
+              padding: EdgeInsets.fromLTRB(
+                  16, MediaQuery.of(context).padding.top + 16, 16, 0),
+              height: 200,
+              decoration: BoxDecoration(
+                color: Color(0xFF253A7D),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Hai,',
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 18)),
+                        Text('Safina Adelia',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold)),
+                        SizedBox(height: 5),
+                        Text(
+                          'Mulai petualangan bahasa isyarat Anda hari ini!',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Image.asset(
+                      'assets/person1.png',
+                      height: MediaQuery.of(context).size.height * 0.22,
+                      fit: BoxFit.contain,
+                    ),
+                  )
+                ],
+              ),
+            ),
+
+            SizedBox(height: 20),
+
+            // FITUR UTAMA
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  FeatureMenu(
+                    iconPath: 'assets/deteksi.png',
+                    label: 'Deteksi Isyarat',
+                  ),
+                  FeatureMenu(
+                    iconPath: 'assets/transcrib.png',
+                    label: ' Transcribe ',
+                  ),
+                  FeatureMenu(
+                    iconPath: 'assets/kamus.png',
+                    label: 'Kamus ',
+                  ),
+                ],
+              ),
+            ),
+
+            SizedBox(height: 25),
+
+            // BANNER "Yuk belajar"
+            CarouselSlider(
+              options: CarouselOptions(
+                height: 180.0,
+                enlargeCenterPage: true,
+                autoPlay: true,
+                viewportFraction: 0.9,
+              ),
+              items: [1, 2, 3, 4, 5].map((i) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.fromLTRB(
+                          10, MediaQuery.of(context).padding.top + 10, 10, 0),
+                      decoration: BoxDecoration(
+                        color: Color(0xFFF7A51B),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Yuk belajar',
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white),
+                                ),
+                                SizedBox(height: 10),
+                                Text(
+                                  'Coba Fitur Sekarang',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.white),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Image.asset(
+                              'assets/person2.png',
+                              height: MediaQuery.of(context).size.height * 0.22,
+                              fit: BoxFit.contain,
+                            ),
+                          )
+                        ],
+                      ),
+                    );
+                  },
+                );
+              }).toList(),
+            ),
+
+            SizedBox(height: 25),
+
+            // INFORMASI TERKINI
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Informasi Terkini',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 4),
+                  Text('Jangan lewatkan informasi terkini dari BiTa'),
+                ],
+              ),
+            ),
+
+            SizedBox(height: 12),
+
+            // CARD INFORMASI
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 4,
+                              offset: Offset(0, 2))
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Container(
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 4,
+                              offset: Offset(0, 2))
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+
+            SizedBox(height: 30),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-class _BerandaPageState extends State<BerandaPage> {
+class FeatureMenu extends StatelessWidget {
+  final String iconPath;
+  final String label;
+  final bool isSelected;
+
+  const FeatureMenu({
+    required this.iconPath,
+    required this.label,
+    this.isSelected = false,
+  });
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Column(
+      children: [
+        Container(
+          width: 72,
+          height: 72,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border:
+                isSelected ? Border.all(color: Colors.blue, width: 2) : null,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              )
+            ],
+          ),
+          child: Center(
+            child: Image.asset(
+              iconPath,
+              height: 40,
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
+        SizedBox(height: 8),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 12),
+        ),
+      ],
+    );
   }
 }
