@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'deteksi.dart';
+import 'transcrib.dart';
+import 'kamus.dart';
 
 class BerandaPage extends StatelessWidget {
   const BerandaPage({super.key});
@@ -65,14 +68,38 @@ class BerandaPage extends StatelessWidget {
                   FeatureMenu(
                     iconPath: 'assets/deteksi.png',
                     label: 'Deteksi Isyarat',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DeteksiPage(),
+                        ),
+                      );
+                    },
                   ),
                   FeatureMenu(
                     iconPath: 'assets/transcrib.png',
                     label: ' Transcribe ',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const TranscribPage(),
+                        ),
+                      );
+                    },
                   ),
                   FeatureMenu(
                     iconPath: 'assets/kamus.png',
                     label: 'Kamus ',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const KamusPage(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -207,49 +234,28 @@ class BerandaPage extends StatelessWidget {
 class FeatureMenu extends StatelessWidget {
   final String iconPath;
   final String label;
-  final bool isSelected;
+  final VoidCallback onPressed;
 
   const FeatureMenu({
+    Key? key,
     required this.iconPath,
     required this.label,
-    this.isSelected = false,
-  });
+    required this.onPressed,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 72,
-          height: 72,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border:
-                isSelected ? Border.all(color: Colors.blue, width: 2) : null,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 4,
-                offset: Offset(0, 2),
-              )
-            ],
-          ),
-          child: Center(
-            child: Image.asset(
-              iconPath,
-              height: 40,
-              fit: BoxFit.contain,
-            ),
-          ),
-        ),
-        SizedBox(height: 8),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 12),
-        ),
-      ],
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(12),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(iconPath, width: 64, height: 64),
+          const SizedBox(height: 8),
+          Text(label, style: const TextStyle(fontSize: 14)),
+        ],
+      ),
     );
   }
 }
