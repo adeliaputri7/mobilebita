@@ -67,7 +67,7 @@ class BerandaPage extends StatelessWidget {
                 children: [
                   FeatureMenu(
                     iconPath: 'assets/deteksi.png',
-                    label: 'Deteksi Isyarat',
+                    label: 'Deteksi',
                     onPressed: () {
                       Navigator.push(
                         context,
