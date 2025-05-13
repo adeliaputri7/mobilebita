@@ -10,6 +10,7 @@ class DeteksiPage extends StatefulWidget {
 }
 
 class _DeteksiPageState extends State<DeteksiPage> {
+  
   CameraController? _controller;
   late List<CameraDescription> cameras;
   String _prediction = "Belum ada deteksi";
