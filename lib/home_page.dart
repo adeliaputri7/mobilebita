@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'beranda_page.dart';
 import 'informasi_page.dart';
-import 'profil_page.dart';
+import 'profileviews.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

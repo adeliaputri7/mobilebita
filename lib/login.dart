@@ -95,7 +95,7 @@ class _LoginPageState extends State<LoginPage> {
                         setState(() {
                           _rememberMe = value ?? false;
                         });
-                      },
+                     },
                     ),
                     const Text("Ingat Saya"),
                   ],
