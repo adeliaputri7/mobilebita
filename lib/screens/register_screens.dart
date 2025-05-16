@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobilebita/login.dart';
+import 'package:mobilebita/screens/login_screens.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
