@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'splash_screen.dart'; // Untuk timer splash screen
+import 'package:get/get.dart';
+import 'profil_page.dart';
+import 'package:mobilebita/screens/register_screens.dart';
+import 'package:mobilebita/screens/login_screens.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,13 +13,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp( // gunakan GetMaterialApp di sini
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const SplashScreen(),
+      title: 'Profil App',
+      initialRoute: '/',
+      getPages: [
+        GetPage(name: '/', page: () => const LoginPage()),
+        GetPage(name: '/register', page: () => const RegisterPage()),
+        GetPage(name: '/profil', page: () => const ProfilPage()),
+      ],
     );
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobilebita/register.dart';
+import 'package:mobilebita/screens/register_screens.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -55,11 +55,11 @@ class _LoginPageState extends State<LoginPage> {
                 hintText: 'Masukkan email anda',
                 prefixIcon: Icon(Icons.email),
                 border: UnderlineInputBorder(),
-                enabledBorder: const UnderlineInputBorder(
+                enabledBorder: UnderlineInputBorder(
                   borderSide:
                       BorderSide(color: Colors.blue), // Garis saat tidak fokus
                 ),
-                focusedBorder: const UnderlineInputBorder(
+                focusedBorder: UnderlineInputBorder(
                   borderSide:
                       BorderSide(color: Colors.blue, width: 2), // Saat fokus
                 ),
@@ -75,11 +75,11 @@ class _LoginPageState extends State<LoginPage> {
                 prefixIcon: Icon(Icons.lock),
                 suffixIcon: Icon(Icons.visibility_off),
                 border: UnderlineInputBorder(),
-                enabledBorder: const UnderlineInputBorder(
+                enabledBorder: UnderlineInputBorder(
                   borderSide:
                       BorderSide(color: Colors.blue), // Garis saat tidak fokus
                 ),
-                focusedBorder: const UnderlineInputBorder(
+                focusedBorder: UnderlineInputBorder(
                   borderSide:
                       BorderSide(color: Colors.blue, width: 2), // Saat fokus
                 ),
