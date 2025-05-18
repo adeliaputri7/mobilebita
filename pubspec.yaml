@@ -8,18 +8,18 @@ environment:
   sdk: ^3.6.1
 
 dependencies:
-  flutter:
-    sdk: flutter
-  cupertino_icons: ^1.0.8
   camera: ^0.11.0
   carousel_slider: ^5.0.0
+  cupertino_icons: ^1.0.8
+  file_picker: ^10.1.9
+  flutter:
+    sdk: flutter
   flutter_native_splash: ^2.4.4
-  image_picker: ^1.1.1
-  shared_preferences: ^2.5.3
-  tflite: ^1.1.2
-  intl: ^0.18.1
   get: ^4.6.5
   http: ^0.13.5
+  image_picker: ^1.1.1
+  intl: ^0.18.1
+  shared_preferences: ^2.5.3
   shelf: ^1.4.0
   shelf_router: ^1.1.3
 

@@ -72,7 +72,7 @@ class BerandaPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const DeteksiPage(),
+                          builder: (context) => DeteksiPage(),
                         ),
                       );
                     },

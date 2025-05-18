@@ -1,6 +1,8 @@
-import 'package:camera/camera.dart';
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:tflite/tflite.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 class DeteksiPage extends StatefulWidget {
   const DeteksiPage({super.key});
@@ -10,90 +12,63 @@ class DeteksiPage extends StatefulWidget {
 }
 
 class _DeteksiPageState extends State<DeteksiPage> {
-  
-  CameraController? _controller;
-  late List<CameraDescription> cameras;
-  String _prediction = "Belum ada deteksi";
+  File? _image;
+  String _result = "";
 
-  bool isDetecting = false;
+  Future<void> _pickAndDetect() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.camera);
 
-  @override
-  void initState() {
-    super.initState();
-    initializeCamera();
-    loadModel();
-  }
+    if (picked != null) {
+      final bytes = await picked.readAsBytes();
+      String base64Image = base64Encode(bytes);
 
-  Future<void> initializeCamera() async {
-    cameras = await availableCameras();
-    _controller = CameraController(
-      cameras[0],
-      ResolutionPreset.medium,
-      enableAudio: false,
-    );
-
-    await _controller!.initialize();
-    _controller!.startImageStream((CameraImage img) async {
-      if (!isDetecting) {
-        isDetecting = true;
-
-        // Konversi image stream ke format yang bisa dibaca model
-        var result = await Tflite.runModelOnFrame(
-          bytesList: img.planes.map((plane) => plane.bytes).toList(),
-          imageHeight: img.height,
-          imageWidth: img.width,
-          imageMean: 127.5,
-          imageStd: 127.5,
-          rotation: 90,
-          numResults: 1,
-          threshold: 0.5,
+      try {
+        final response = await http.post(
+          Uri.parse('http://10.0.2.2:5000/predict'), // ganti IP jika perlu
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'image': base64Image}),
         );
 
-        if (result != null && result.isNotEmpty) {
+        if (response.statusCode == 200) {
+          final json = jsonDecode(response.body);
           setState(() {
-            _prediction = result[0]["label"];
+            _image = File(picked.path);
+            _result = json['result'];
+          });
+        } else {
+          setState(() {
+            _result = "Gagal mendeteksi gesture. Kode: ${response.statusCode}";
           });
         }
-
-        isDetecting = false;
+      } catch (e) {
+        setState(() {
+          _result = "Terjadi kesalahan: $e";
+        });
       }
-    });
-
-    setState(() {});
-  }
-
-  Future<void> loadModel() async {
-    await Tflite.loadModel(
-      model: "assets/model.tflite",
-      labels: "assets/labels.txt",
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller?.dispose();
-    Tflite.close();
-    super.dispose();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Deteksi Video Real-time")),
-      body: Column(
-        children: [
-          if (_controller != null && _controller!.value.isInitialized)
-            AspectRatio(
-              aspectRatio: _controller!.value.aspectRatio,
-              child: CameraPreview(_controller!),
-            )
-          else
-            const Center(child: CircularProgressIndicator()),
-          const SizedBox(height: 20),
-          Text("Hasil: $_prediction",
-              style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        ],
+      appBar: AppBar(title: Text("Deteksi Bahasa Isyarat")),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            _image != null
+                ? Image.file(_image!, width: 200)
+                : Placeholder(fallbackHeight: 200),
+            const SizedBox(height: 16),
+            Text(_result, style: TextStyle(fontSize: 18)),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _pickAndDetect,
+              child: Text("Ambil & Deteksi Gambar"),
+            ),
+          ],
+        ),
       ),
     );
   }
