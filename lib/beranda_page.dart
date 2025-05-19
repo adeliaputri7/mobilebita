@@ -96,7 +96,7 @@ class BerandaPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const KamusPage(),
+                          builder: (context) => const KamusScreen(),
                         ),
                       );
                     },

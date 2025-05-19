@@ -4,6 +4,10 @@ import 'package:mobilebita/beranda_page.dart';
 import 'profil_page.dart';
 import 'package:mobilebita/screens/register_screens.dart';
 import 'package:mobilebita/screens/login_screens.dart';
+import 'alfabet.dart';
+import 'kata_sifat.dart';
+import 'kata_kerja.dart';
+import 'kata_tanya.dart';
 
 void main() {
   runApp(const MyApp());
