@@ -1,7 +1,6 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:camera/camera.dart';
 import 'package:http/http.dart' as http;
 
 class DeteksiPage extends StatefulWidget {
@@ -12,63 +11,142 @@ class DeteksiPage extends StatefulWidget {
 }
 
 class _DeteksiPageState extends State<DeteksiPage> {
-  File? _image;
-  String _result = "";
+  CameraController? _cameraController;
+  List<CameraDescription>? _cameras;
+  bool _isRecording = false;
+  String _gestureResult = "Menunggu rekaman video...";
 
-  Future<void> _pickAndDetect() async {
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.camera);
+  @override
+  void initState() {
+    super.initState();
+    _initCamera();
+  }
 
-    if (picked != null) {
-      final bytes = await picked.readAsBytes();
-      String base64Image = base64Encode(bytes);
+  Future<void> _initCamera() async {
+    _cameras = await availableCameras();
+    if (_cameras != null && _cameras!.isNotEmpty) {
+      _cameraController = CameraController(
+        _cameras![0],
+        ResolutionPreset.medium,
+        enableAudio: true,
+      );
+      await _cameraController!.initialize();
+      setState(() {});
+    }
+  }
 
-      try {
-        final response = await http.post(
-          Uri.parse('http://10.0.2.2:5000/predict'), // ganti IP jika perlu
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({'image': base64Image}),
-        );
+  Future<void> _startVideoRecording() async {
+    if (_cameraController == null || _cameraController!.value.isRecordingVideo)
+      return;
 
-        if (response.statusCode == 200) {
-          final json = jsonDecode(response.body);
-          setState(() {
-            _image = File(picked.path);
-            _result = json['result'];
-          });
-        } else {
-          setState(() {
-            _result = "Gagal mendeteksi gesture. Kode: ${response.statusCode}";
-          });
-        }
-      } catch (e) {
+    try {
+      await _cameraController!.startVideoRecording();
+      setState(() {
+        _isRecording = true;
+        _gestureResult = "Merekam video...";
+      });
+    } catch (e) {
+      print("Error mulai rekam video: $e");
+    }
+  }
+
+  Future<void> _stopVideoRecording() async {
+    if (_cameraController == null || !_cameraController!.value.isRecordingVideo)
+      return;
+
+    try {
+      XFile videoFile = await _cameraController!.stopVideoRecording();
+      setState(() {
+        _isRecording = false;
+        _gestureResult = "Video selesai direkam, mengirim ke server...";
+      });
+
+      await _sendVideoToServer(videoFile);
+    } catch (e) {
+      print("Error stop rekam video: $e");
+      setState(() {
+        _gestureResult = "Gagal merekam video";
+      });
+    }
+  }
+
+  Future<void> _sendVideoToServer(XFile videoFile) async {
+    try {
+      final bytes = await videoFile.readAsBytes();
+      final base64Video = base64Encode(bytes);
+
+      final response = await http.post(
+        Uri.parse('http://10.0.0.2:5000/predict_video'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'video': base64Video}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        String result = data['result'] ?? "Tidak terdeteksi";
         setState(() {
-          _result = "Terjadi kesalahan: $e";
+          _gestureResult = "Gesture terdeteksi: $result";
+        });
+      } else {
+        setState(() {
+          _gestureResult = "Gagal kirim video ke server";
         });
       }
+    } catch (e) {
+      print("Error kirim video ke server: $e");
+      setState(() {
+        _gestureResult = "Error kirim video ke server";
+      });
     }
+  }
+
+  @override
+  void dispose() {
+    _cameraController?.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Deteksi Bahasa Isyarat")),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            _image != null
-                ? Image.file(_image!, width: 200)
-                : Placeholder(fallbackHeight: 200),
-            const SizedBox(height: 16),
-            Text(_result, style: TextStyle(fontSize: 18)),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _pickAndDetect,
-              child: Text("Ambil & Deteksi Gambar"),
+      appBar: AppBar(
+        title: Text("Deteksi Gesture dari Video"),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: _cameraController != null &&
+                    _cameraController!.value.isInitialized
+                ? CameraPreview(_cameraController!)
+                : Center(child: CircularProgressIndicator()),
+          ),
+          Container(
+            padding: EdgeInsets.all(16),
+            color: Colors.black,
+            width: double.infinity,
+            child: Text(
+              _gestureResult,
+              style: TextStyle(color: Colors.white, fontSize: 20),
+              textAlign: TextAlign.center,
             ),
-          ],
-        ),
+          ),
+          SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: _isRecording ? null : _startVideoRecording,
+                child: Text("Mulai Rekam Video"),
+              ),
+              SizedBox(width: 16),
+              ElevatedButton(
+                onPressed: _isRecording ? _stopVideoRecording : null,
+                child: Text("Stop Rekam Video"),
+              ),
+            ],
+          ),
+          SizedBox(height: 24),
+        ],
       ),
     );
   }
