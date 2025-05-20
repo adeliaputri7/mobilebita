@@ -14,47 +14,88 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    BerandaPage(),
-    InformasiPage(),
-    ProfilPage(),
+    const BerandaPage(),
+    const InformasiPage(),
+    const ProfilPage(),
   ];
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Informasi'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
-        ],
-      ),
-    );
-  }
-
-  // Optional: menuItem kustom
-  Widget _menuItem(IconData icon, String label) {
+  // Fungsi custom menu item yang akan dipakai di custom bottom nav
+  Widget _menuItem(IconData icon, String label, bool isSelected) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.blue.shade50,
+            color: isSelected ? Colors.blue.shade100 : Colors.transparent,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Icon(icon, color: Colors.blue, size: 30),
+          child: Icon(
+            icon,
+            color: isSelected ? Colors.blue : Colors.grey,
+            size: 30,
+          ),
         ),
         const SizedBox(height: 8),
-        Text(label, textAlign: TextAlign.center),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: isSelected ? Colors.blue : Colors.grey,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
       ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -1),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            // Panggil _menuItem dengan parameter isSelected sesuai index
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedIndex = 0;
+                });
+              },
+              child: _menuItem(Icons.home, 'Beranda', _selectedIndex == 0),
+            ),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedIndex = 1;
+                });
+              },
+              child: _menuItem(Icons.book, 'Informasi', _selectedIndex == 1),
+            ),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedIndex = 2;
+                });
+              },
+              child: _menuItem(Icons.person, 'Profil', _selectedIndex == 2),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

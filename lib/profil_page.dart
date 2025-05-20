@@ -51,7 +51,7 @@ class ProfilPage extends StatelessWidget {
                       ],
                     )
                   ],
-                ),  
+                ),
               ),
               const SizedBox(height: 24),
               ListTile(
@@ -61,11 +61,11 @@ class ProfilPage extends StatelessWidget {
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () {
                   Get.to(ProfileScreen());
-
                 },
               ),
               const SizedBox(height: 16),
-              const Text("Lainnya", style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text("Lainnya",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               ListTile(
                 leading: const Icon(Icons.history),

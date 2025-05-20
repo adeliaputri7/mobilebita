@@ -15,15 +15,15 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_native_splash: ^2.4.4
+  flutter_tts: ^3.5.2
   get: ^4.6.5
   http: ^0.13.5
+  image: ^4.5.4
   image_picker: ^1.1.1
   intl: ^0.18.1
   shared_preferences: ^2.5.3
   shelf: ^1.4.0
   shelf_router: ^1.1.3
-  flutter_tts: ^3.5.2
-  image: ^4.0.17
 
 dev_dependencies:
   flutter_lints: ^5.0.0

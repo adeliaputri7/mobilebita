@@ -10,16 +10,20 @@ class BerandaPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF9F6F6),
+      backgroundColor: const Color(0xFFF9F6F6),
       body: SingleChildScrollView(
         child: Column(
           children: [
             // HEADER
             Container(
               padding: EdgeInsets.fromLTRB(
-                  16, MediaQuery.of(context).padding.top + 16, 16, 0),
+                16,
+                MediaQuery.of(context).padding.top + 16,
+                16,
+                0,
+              ),
               height: 200,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Color(0xFF253A7D),
               ),
               child: Row(
@@ -28,7 +32,7 @@ class BerandaPage extends StatelessWidget {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      children: const [
                         Text('Hai,',
                             style:
                                 TextStyle(color: Colors.white, fontSize: 18)),
@@ -57,7 +61,7 @@ class BerandaPage extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             // FITUR UTAMA
             Padding(
@@ -105,7 +109,7 @@ class BerandaPage extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: 25),
+            const SizedBox(height: 25),
 
             // BANNER "Yuk belajar"
             CarouselSlider(
@@ -121,9 +125,13 @@ class BerandaPage extends StatelessWidget {
                     return Container(
                       width: double.infinity,
                       padding: EdgeInsets.fromLTRB(
-                          10, MediaQuery.of(context).padding.top + 10, 10, 0),
+                        10,
+                        MediaQuery.of(context).padding.top + 10,
+                        10,
+                        0,
+                      ),
                       decoration: BoxDecoration(
-                        color: Color(0xFFF7A51B),
+                        color: const Color(0xFFF7A51B),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -131,7 +139,7 @@ class BerandaPage extends StatelessWidget {
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
+                              children: const [
                                 Text(
                                   'Yuk belajar',
                                   style: TextStyle(
@@ -164,14 +172,14 @@ class BerandaPage extends StatelessWidget {
               }).toList(),
             ),
 
-            SizedBox(height: 25),
+            const SizedBox(height: 25),
 
             // INFORMASI TERKINI
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                children: const [
                   Text('Informasi Terkini',
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
@@ -181,7 +189,7 @@ class BerandaPage extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
 
             // CARD INFORMASI
             Padding(
@@ -194,27 +202,29 @@ class BerandaPage extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
+                        boxShadow: const [
                           BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 4,
-                              offset: Offset(0, 2))
+                            color: Colors.black12,
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                          )
                         ],
                       ),
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Container(
                       height: 100,
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
+                        boxShadow: const [
                           BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 4,
-                              offset: Offset(0, 2))
+                            color: Colors.black12,
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                          )
                         ],
                       ),
                     ),
@@ -223,7 +233,7 @@ class BerandaPage extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: 30),
+            const SizedBox(height: 30),
           ],
         ),
       ),
@@ -237,11 +247,11 @@ class FeatureMenu extends StatelessWidget {
   final VoidCallback onPressed;
 
   const FeatureMenu({
-    Key? key,
+    super.key,
     required this.iconPath,
     required this.label,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

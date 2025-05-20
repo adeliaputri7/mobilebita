@@ -76,7 +76,7 @@ class _DeteksiPageState extends State<DeteksiPage> {
       final base64Video = base64Encode(bytes);
 
       final response = await http.post(
-        Uri.parse('http://10.0.0.2:5000/predict_video'),
+        Uri.parse('http://192.168.1.7/predict_video'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'video': base64Video}),
       );
