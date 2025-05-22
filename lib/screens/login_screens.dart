@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobilebita/screens/register_screens.dart';
+import 'package:mobilebita/profil_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -20,6 +21,17 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Tombol kembali
+            IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfilPage()),
+                );
+              },
+            ),
+            const SizedBox(height: 5),
             const SizedBox(height: 60),
             const Text(
               'Login',

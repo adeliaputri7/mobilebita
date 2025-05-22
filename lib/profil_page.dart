@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobilebita/profile.dart';
 import 'package:get/get.dart';
+import 'screens/login_screens.dart';
 
 class ProfilPage extends StatelessWidget {
   const ProfilPage({super.key});
@@ -78,7 +79,10 @@ class ProfilPage extends StatelessWidget {
                 title: const Text("Keluar"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () {
-                  Navigator.pushReplacementNamed(context, '/login');
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                  );
                 },
               ),
             ],

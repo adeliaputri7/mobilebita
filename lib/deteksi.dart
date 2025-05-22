@@ -1,7 +1,11 @@
 import 'dart:convert';
+import 'dart:typed_data';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:http/http.dart' as http;
+import 'package:image/image.dart' as img;
 
 class DeteksiPage extends StatefulWidget {
   const DeteksiPage({super.key});
@@ -13,8 +17,8 @@ class DeteksiPage extends StatefulWidget {
 class _DeteksiPageState extends State<DeteksiPage> {
   CameraController? _cameraController;
   List<CameraDescription>? _cameras;
-  bool _isRecording = false;
-  String _gestureResult = "Menunggu rekaman video...";
+  String _currentOutput = "Menunggu deteksi gesture...";
+  bool _isDetecting = false;
 
   @override
   void initState() {
@@ -28,75 +32,84 @@ class _DeteksiPageState extends State<DeteksiPage> {
       _cameraController = CameraController(
         _cameras![0],
         ResolutionPreset.medium,
-        enableAudio: true,
+        enableAudio: false,
       );
       await _cameraController!.initialize();
+
+      _cameraController!.startImageStream((CameraImage image) {
+        if (!_isDetecting) {
+          _isDetecting = true;
+          _processCameraImage(image);
+        }
+      });
+
       setState(() {});
     }
   }
 
-  Future<void> _startVideoRecording() async {
-    if (_cameraController == null || _cameraController!.value.isRecordingVideo)
-      return;
+  // Fungsi convert YUV420 ke JPEG dengan package image
+  Uint8List _convertYUV420ToJpeg(CameraImage image) {
+    final int width = image.width;
+    final int height = image.height;
+    final img.Image imgBuffer = img.Image(width: width, height: height);
 
-    try {
-      await _cameraController!.startVideoRecording();
-      setState(() {
-        _isRecording = true;
-        _gestureResult = "Merekam video...";
-      });
-    } catch (e) {
-      print("Error mulai rekam video: $e");
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        final int uvIndex = (x ~/ 2) + (y ~/ 2) * (width ~/ 2);
+        final int yp = image.planes[0].bytes[y * width + x];
+        final int up = image.planes[1].bytes[uvIndex];
+        final int vp = image.planes[2].bytes[uvIndex];
+
+        int r = (yp + 1.370705 * (vp - 128)).round();
+        int g = (yp - 0.337633 * (up - 128) - 0.698001 * (vp - 128)).round();
+        int b = (yp + 1.732446 * (up - 128)).round();
+
+        r = r.clamp(0, 255);
+        g = g.clamp(0, 255);
+        b = b.clamp(0, 255);
+
+        imgBuffer.setPixelRgba(x, y, r, g, b, 255);
+      }
     }
+
+    return Uint8List.fromList(img.encodeJpg(imgBuffer));
   }
 
-  Future<void> _stopVideoRecording() async {
-    if (_cameraController == null || !_cameraController!.value.isRecordingVideo)
-      return;
-
+  Future<void> _processCameraImage(CameraImage image) async {
     try {
-      XFile videoFile = await _cameraController!.stopVideoRecording();
-      setState(() {
-        _isRecording = false;
-        _gestureResult = "Video selesai direkam, mengirim ke server...";
-      });
+      final jpeg = _convertYUV420ToJpeg(image);
 
-      await _sendVideoToServer(videoFile);
-    } catch (e) {
-      print("Error stop rekam video: $e");
-      setState(() {
-        _gestureResult = "Gagal merekam video";
-      });
-    }
-  }
-
-  Future<void> _sendVideoToServer(XFile videoFile) async {
-    try {
-      final bytes = await videoFile.readAsBytes();
-      final base64Video = base64Encode(bytes);
-
-      final response = await http.post(
-        Uri.parse('http://192.168.1.7/predict_video'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'video': base64Video}),
-      );
+      final response = await http
+          .post(
+            Uri.parse(
+                'http://127.0.0.1:5000/detect_gesture'), // Ganti dengan IP servermu
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'image': base64Encode(jpeg)}),
+          )
+          .timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        String result = data['result'] ?? "Tidak terdeteksi";
+        String gesture = data['gesture'] ?? 'Tidak terdeteksi';
+        int handsDetected = data['hands_detected'] ?? 0;
+
         setState(() {
-          _gestureResult = "Gesture terdeteksi: $result";
+          _currentOutput =
+              "Gesture: $gesture (Tangan terdeteksi: $handsDetected)";
         });
       } else {
         setState(() {
-          _gestureResult = "Gagal kirim video ke server";
+          _currentOutput = "Error: Server respons ${response.statusCode}";
         });
       }
     } catch (e) {
-      print("Error kirim video ke server: $e");
       setState(() {
-        _gestureResult = "Error kirim video ke server";
+        _currentOutput = "Error saat request: $e";
       });
+    } finally {
+      // Delay kecil agar gak spam request terlalu cepat
+      await Future.delayed(const Duration(milliseconds: 300));
+      _isDetecting = false;
     }
   }
 
@@ -109,44 +122,49 @@ class _DeteksiPageState extends State<DeteksiPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Deteksi Gesture dari Video"),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: _cameraController != null &&
-                    _cameraController!.value.isInitialized
-                ? CameraPreview(_cameraController!)
-                : Center(child: CircularProgressIndicator()),
-          ),
-          Container(
-            padding: EdgeInsets.all(16),
-            color: Colors.black,
-            width: double.infinity,
-            child: Text(
-              _gestureResult,
-              style: TextStyle(color: Colors.white, fontSize: 20),
-              textAlign: TextAlign.center,
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Container(
+              height: 40,
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: Color(0xFF1A2B5C),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
+                ),
+              ),
             ),
-          ),
-          SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: _isRecording ? null : _startVideoRecording,
-                child: Text("Mulai Rekam Video"),
+            Expanded(
+              child: Container(
+                color: Colors.white,
+                child: _cameraController != null &&
+                        _cameraController!.value.isInitialized
+                    ? CameraPreview(_cameraController!)
+                    : const Center(child: CircularProgressIndicator()),
               ),
-              SizedBox(width: 16),
-              ElevatedButton(
-                onPressed: _isRecording ? _stopVideoRecording : null,
-                child: Text("Stop Rekam Video"),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              decoration: const BoxDecoration(
+                color: Color(0xFF1A2B5C),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(24),
+                  bottomRight: Radius.circular(24),
+                ),
               ),
-            ],
-          ),
-          SizedBox(height: 24),
-        ],
+              child: Text(
+                _currentOutput,
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

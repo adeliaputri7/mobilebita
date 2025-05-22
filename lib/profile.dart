@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-
+import 'screens/login_screens.dart';
+import 'profil_page.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -77,7 +78,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const ProfilPage()),
+            );
           },
         ),
       ),
@@ -117,7 +121,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 30),
 
-              _buildTextField(label: 'Username', controller: _usernameController),
+              _buildTextField(
+                  label: 'Username', controller: _usernameController),
               _buildTextField(label: 'Email', controller: _emailController),
               _buildTextField(
                 label: 'No Telepon',
@@ -126,7 +131,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   'assets/flags/indonesia.png',
                   width: 24,
                   height: 16,
-                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.flag),
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.flag),
                 ),
               ),
 
@@ -154,6 +160,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               const SizedBox(height: 40),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: OutlinedButton(
+                  onPressed: () {
+                    // Navigasi ke halaman login
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const LoginPage()),
+                    );
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.blue),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Keluar / Login Ulang',
+                    style: TextStyle(
+                      color: Colors.blue,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
