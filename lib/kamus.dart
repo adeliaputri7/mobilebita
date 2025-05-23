@@ -4,7 +4,10 @@ import 'package:mobilebita/screens/kamus/kata_kerja.dart';
 import 'package:mobilebita/screens/kamus/kata_sifat.dart';
 import 'package:mobilebita/screens/kamus/kata_tanya.dart';
 
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 void main() => runApp(const KamusApp());
 
 class KamusApp extends StatelessWidget {
