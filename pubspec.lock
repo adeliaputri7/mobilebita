@@ -344,6 +344,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.1"
+<<<<<<< Updated upstream
   pedantic:
     dependency: transitive
     description:
@@ -352,6 +353,8 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.11.1"
+=======
+>>>>>>> Stashed changes
   permission_handler:
     dependency: "direct main"
     description:

@@ -4,6 +4,10 @@ import 'package:mobilebita/beranda_page.dart';
 import 'profil_page.dart';
 import 'package:mobilebita/screens/register_screens.dart';
 import 'package:mobilebita/screens/login_screens.dart';
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 import 'package:mobilebita/screens/kamus/alfabet.dart';
 import 'package:mobilebita/screens/kamus/kata_kerja.dart';
 import 'package:mobilebita/screens/kamus/kata_sifat.dart';
@@ -25,10 +29,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       getPages: [
         GetPage(name: '/', page: () => SplashScreen()),
-=======
         GetPage(name: '/', page: () => const SplashScreen()),
->>>>>>> Stashed changes
-=======
         GetPage(name: '/', page: () => const SplashScreen()),
         GetPage(name: '/register', page: () => const RegisterPage()),
         GetPage(name: '/profil', page: () => const ProfilPage()),
