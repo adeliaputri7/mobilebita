@@ -1,95 +1,127 @@
+import 'dart:async';
+import 'dart:io';
 import 'dart:convert';
-
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:tflite_flutter/tflite_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart';
 
 class DeteksiPage extends StatefulWidget {
   const DeteksiPage({super.key});
-
   @override
   DeteksiPageState createState() => DeteksiPageState();
 }
 
 class DeteksiPageState extends State<DeteksiPage> {
-  late Interpreter _interpreter;
-  late List<String> _labels;
-  String _prediction = "Belum ada prediksi";
+  CameraController? _controller;
+  bool isRecording = false;
+  String detectedGestures = "Belum ada gesture";
 
   @override
   void initState() {
     super.initState();
-    _loadModelAndLabels();
+    initCamera();
   }
 
-  Future<void> _loadModelAndLabels() async {
-    // Load model dari asset
-    final modelData = await rootBundle.load('assets/gesture_model.tflite');
-    final modelBytes = modelData.buffer.asUint8List();
-    _interpreter = await Interpreter.fromBuffer(modelBytes);
+  Future<void> initCamera() async {
+    final cameras = await availableCameras();
+    final camera = cameras.first;
+    _controller = CameraController(camera, ResolutionPreset.medium);
 
-    // Load labels dari JSON asset
-    final labelData = await rootBundle.loadString('assets/gesture_labels.json');
-    _labels = List<String>.from(json.decode(labelData));
-
+    await _controller!.initialize();
+    if (!mounted) return;
     setState(() {});
   }
 
-  Future<void> _runInference() async {
-    // Simulasi input gesture: list 126 float (ganti dengan data nyata)
-    List<double> inputData = List.filled(126, 0);
+  Future<void> startRecording() async {
+    if (_controller == null || !_controller!.value.isInitialized) return;
+    if (isRecording) return;
 
-    // Contoh modifikasi supaya hasil beda-beda (dummy)
-    inputData[0] = 0.5;
-
-    var input = [inputData];
-    var output = List.filled(_labels.length, 0.0).reshape([1, _labels.length]);
-
-    _interpreter.run(input, output);
-
-    final predictionScores = output[0];
-    int maxIdx = 0;
-    double maxScore = predictionScores[0];
-    for (int i = 1; i < predictionScores.length; i++) {
-      if (predictionScores[i] > maxScore) {
-        maxIdx = i;
-        maxScore = predictionScores[i];
-      }
+    try {
+      await _controller!.startVideoRecording();
+      isRecording = true;
+      setState(() {});
+    } catch (e) {
+      print("Error starting recording: $e");
     }
+  }
 
-    setState(() {
-      _prediction =
-          "Prediksi gesture: ${_labels[maxIdx]} (confidence: ${maxScore.toStringAsFixed(3)})";
-    });
+  Future<void> stopRecording() async {
+    if (_controller == null || !_controller!.value.isRecordingVideo) return;
+
+    try {
+      XFile videoFile = await _controller!.stopVideoRecording();
+      isRecording = false;
+      setState(() {});
+      await sendVideoToServer(File(videoFile.path));
+    } catch (e) {
+      print("Error stopping recording: $e");
+    }
+  }
+
+  Future<void> sendVideoToServer(File videoFile) async {
+    final uri = Uri.parse('http://192.168.1.2:5000/detect_gesture');
+
+    var request = http.MultipartRequest('POST', uri);
+    request.files
+        .add(await http.MultipartFile.fromPath('video', videoFile.path));
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode == 200) {
+      final json = response.body;
+      print("Response from server: $json");
+      final gestures = (jsonDecode(json)['gestures'] as List).join(", ");
+      setState(() {
+        detectedGestures =
+            gestures.isEmpty ? "Tidak ada gesture terdeteksi" : gestures;
+      });
+    } else {
+      print("Failed to detect gesture: ${response.body}");
+      setState(() {
+        detectedGestures = "Error mendeteksi gesture: ${response.body}";
+      });
+    }
   }
 
   @override
   void dispose() {
-    _interpreter.close();
+    _controller?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_controller == null || !_controller!.value.isInitialized) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Gesture Detection Demo'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            ElevatedButton(
-              onPressed: _interpreter != null ? _runInference : null,
-              child: Text('Detect Gesture'),
+      appBar: AppBar(title: const Text("Deteksi Gesture Video")),
+      body: Column(
+        children: [
+          Expanded(
+            // <-- Ini bikin CameraPreview expand maksimal ruang yg tersedia
+            child: AspectRatio(
+              aspectRatio: _controller!.value.aspectRatio,
+              child: CameraPreview(_controller!),
             ),
-            SizedBox(height: 30),
-            Text(
-              _prediction,
-              style: TextStyle(fontSize: 20),
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text("Gesture terdeteksi: $detectedGestures",
+                style: const TextStyle(fontSize: 20)),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: isRecording ? stopRecording : startRecording,
+            child: Text(isRecording ? "Berhenti Merekam" : "Mulai Merekam"),
+          ),
+          const SizedBox(height: 20),
+        ],
       ),
     );
   }

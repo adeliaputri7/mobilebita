@@ -12,17 +12,17 @@ dependencies:
   carousel_slider: ^5.0.0
   cupertino_icons: ^1.0.8
   file_picker: ^10.1.9
-  permission_handler: ^11.3.0
   flutter:
     sdk: flutter
   flutter_native_splash: ^2.4.4
+  flutter_tts: ^4.0.2
   get: ^4.7.2
   http: ^1.4.0
+  image: ^4.5.4
   intl: ^0.20.2
-  speech_to_text: ^6.4.1
-  flutter_tts: ^4.0.2
+  path_provider: ^2.1.5
   permission_handler: ^11.3.0
-
+  speech_to_text: ^7.0.0
 
 dev_dependencies:
   flutter_lints: ^5.0.0
@@ -40,7 +40,6 @@ flutter:
     - assets/person2.png
     - assets/google.png
     - assets/kata_kerja.png
-    - assets/kata_tanya.png 
+    - assets/kata_tanya.png
     - assets/kata_sifat.png
     - assets/alfabet.png
-

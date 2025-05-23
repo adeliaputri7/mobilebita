@@ -3,10 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-<<<<<<< Updated upstream
   flutter_tts
-=======
->>>>>>> Stashed changes
   permission_handler_windows
 )
 

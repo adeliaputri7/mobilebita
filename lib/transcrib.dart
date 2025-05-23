@@ -3,19 +3,13 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-void main() {
-  runApp(MaterialApp(
-    home: SpeechTextApp(),
-    debugShowCheckedModeBanner: false,
-  ));
-}
-
-class SpeechTextApp extends StatefulWidget {
+class TranscribPage extends StatefulWidget {
+  const TranscribPage({super.key});
   @override
-  _SpeechTextAppState createState() => _SpeechTextAppState();
+  TranscribPageState createState() => TranscribPageState();
 }
 
-class _SpeechTextAppState extends State<SpeechTextApp> {
+class TranscribPageState extends State<TranscribPage> {
   late stt.SpeechToText _speech;
   bool _isListening = false;
   String _text = 'Tekan mikrofon untuk mulai bicara...';
