@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:mobilebita/screens/kamus/alfabet.dart';
+import 'package:mobilebita/screens/kamus/kata_kerja.dart';
+import 'package:mobilebita/screens/kamus/kata_sifat.dart';
+import 'package:mobilebita/screens/kamus/kata_tanya.dart';
+
 
 void main() => runApp(KamusApp());
 
@@ -83,12 +88,39 @@ class KamusScreen extends StatelessWidget {
                     mainAxisSpacing: 16,
                   ),
                   itemBuilder: (context, index) {
-                    final category = categories[index];
-                    return CategoryCard(
-                      title: category['title']!,
-                      imagePath: category['image']!,
-                    );
-                  },
+                      final category = categories[index];
+                      return CategoryCard(
+                        title: category['title']!,
+                        imagePath: category['image']!,
+                        onTap: () {
+                          if (category['title'] == 'Alfabet') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => AlfabetScreen()),
+                            );
+                          } else if (category['title'] == 'Kata Tanya') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => KataTanyaScreen()),
+                            );
+                          } else if (category['title'] == 'Kata Kerja') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => KataKerjaScreen()),
+                            );
+                          } else if (category['title'] == 'Kata Sifat') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => KataSifat()),
+                            );
+                          }
+                        },
+                      );
+                    }
                 ),
               ),
             ),
@@ -102,16 +134,20 @@ class KamusScreen extends StatelessWidget {
 class CategoryCard extends StatelessWidget {
   final String title;
   final String imagePath;
+  final VoidCallback onTap;
 
   const CategoryCard({
     required this.title,
     required this.imagePath,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Material(
       elevation: 4,
+      child: InkWell(
+    onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: EdgeInsets.all(12),
@@ -139,6 +175,8 @@ class CategoryCard extends StatelessWidget {
           ],
         ),
       ),
+        ),
     );
+    
   }
 }
