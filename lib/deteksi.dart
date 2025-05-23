@@ -20,6 +20,12 @@ class _DeteksiPageState extends State<DeteksiPage> {
   String _currentOutput = "Menunggu deteksi gesture...";
   bool _isDetecting = false;
 
+  // Tambahan variabel state untuk deteksi kalimat
+  String _detectedLetter = '';
+  String _currentWord = '';
+  String _currentSentence = '';
+  DateTime _lastDetected = DateTime.now();
+
   @override
   void initState() {
     super.initState();
@@ -29,13 +35,11 @@ class _DeteksiPageState extends State<DeteksiPage> {
   Future<void> _initCamera() async {
     _cameras = await availableCameras();
     if (_cameras != null && _cameras!.isNotEmpty) {
-      _cameraController = CameraController(
-        _cameras![0],
-        ResolutionPreset.medium,
-        enableAudio: false,
-      );
+      _cameraController =
+          CameraController(_cameras![0], ResolutionPreset.medium);
       await _cameraController!.initialize();
 
+      // Set listener untuk setiap frame kamera
       _cameraController!.startImageStream((CameraImage image) {
         if (!_isDetecting) {
           _isDetecting = true;
@@ -47,7 +51,7 @@ class _DeteksiPageState extends State<DeteksiPage> {
     }
   }
 
-  // Fungsi convert YUV420 ke JPEG dengan package image
+  // Fungsi convert YUV420 ke JPEG (tetap pakai yang kamu punya)
   Uint8List _convertYUV420ToJpeg(CameraImage image) {
     final int width = image.width;
     final int height = image.height;
@@ -71,7 +75,6 @@ class _DeteksiPageState extends State<DeteksiPage> {
         imgBuffer.setPixelRgba(x, y, r, g, b, 255);
       }
     }
-
     return Uint8List.fromList(img.encodeJpg(imgBuffer));
   }
 
@@ -81,8 +84,7 @@ class _DeteksiPageState extends State<DeteksiPage> {
 
       final response = await http
           .post(
-            Uri.parse(
-                'http://127.0.0.1:5000/detect_gesture'), // Ganti dengan IP servermu
+            Uri.parse('http://192.168.1.2:5000/detect_gesture'),
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({'image': base64Encode(jpeg)}),
           )
@@ -90,12 +92,40 @@ class _DeteksiPageState extends State<DeteksiPage> {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        String gesture = data['gesture'] ?? 'Tidak terdeteksi';
+        String gesture = data['gesture'] ?? 'no_hand';
         int handsDetected = data['hands_detected'] ?? 0;
+
+        if (handsDetected > 0 && gesture.isNotEmpty && gesture != "no_hand") {
+          final now = DateTime.now();
+          if (now.difference(_lastDetected) > Duration(seconds: 1)) {
+            // Update huruf, kata, kalimat sesuai gesture
+            setState(() {
+              _detectedLetter = gesture;
+
+              if (gesture == "space") {
+                _currentSentence += ' ';
+                _currentWord = '';
+              } else if (gesture == "clear") {
+                _currentSentence = '';
+                _currentWord = '';
+              } else {
+                _currentWord += gesture;
+                _currentSentence += gesture;
+              }
+
+              _lastDetected = now;
+            });
+          }
+        } else {
+          // Jika no_hand, bisa update status atau kosongkan huruf sekarang
+          setState(() {
+            _detectedLetter = '';
+          });
+        }
 
         setState(() {
           _currentOutput =
-              "Gesture: $gesture (Tangan terdeteksi: $handsDetected)";
+              "Kalimat: $_currentSentence\nKata saat ini: $_currentWord\nHuruf: $_detectedLetter\nTangan terdeteksi: $handsDetected";
         });
       } else {
         setState(() {
@@ -107,7 +137,6 @@ class _DeteksiPageState extends State<DeteksiPage> {
         _currentOutput = "Error saat request: $e";
       });
     } finally {
-      // Delay kecil agar gak spam request terlalu cepat
       await Future.delayed(const Duration(milliseconds: 300));
       _isDetecting = false;
     }
