@@ -25,9 +25,10 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       getPages: [
         GetPage(name: '/', page: () => SplashScreen()),
-
+=======
         GetPage(name: '/', page: () => const SplashScreen()),
-
+>>>>>>> Stashed changes
+=======
         GetPage(name: '/', page: () => const SplashScreen()),
         GetPage(name: '/register', page: () => const RegisterPage()),
         GetPage(name: '/profil', page: () => const ProfilPage()),
