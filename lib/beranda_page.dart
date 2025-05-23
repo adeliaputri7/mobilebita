@@ -83,7 +83,7 @@ class BerandaPage extends StatelessWidget {
                   ),
                   FeatureMenu(
                     iconPath: 'assets/transcrib.png',
-                    label: ' Transcribe ',
+                    label: 'Transcribe',
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -95,7 +95,7 @@ class BerandaPage extends StatelessWidget {
                   ),
                   FeatureMenu(
                     iconPath: 'assets/kamus.png',
-                    label: 'Kamus ',
+                    label: 'Kamus',
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -124,12 +124,7 @@ class BerandaPage extends StatelessWidget {
                   builder: (BuildContext context) {
                     return Container(
                       width: double.infinity,
-                      padding: EdgeInsets.fromLTRB(
-                        10,
-                        MediaQuery.of(context).padding.top + 10,
-                        10,
-                        0,
-                      ),
+                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF7A51B),
                         borderRadius: BorderRadius.circular(20),
@@ -160,7 +155,7 @@ class BerandaPage extends StatelessWidget {
                             alignment: Alignment.bottomCenter,
                             child: Image.asset(
                               'assets/person2.png',
-                              height: MediaQuery.of(context).size.height * 0.22,
+                              height: 100,
                               fit: BoxFit.contain,
                             ),
                           )

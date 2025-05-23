@@ -5,12 +5,14 @@ import 'package:mobilebita/screens/kamus/kata_sifat.dart';
 import 'package:mobilebita/screens/kamus/kata_tanya.dart';
 
 
-void main() => runApp(KamusApp());
+void main() => runApp(const KamusApp());
 
 class KamusApp extends StatelessWidget {
+  const KamusApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'Kamus Bisindo',
       home: KamusScreen(),
       debugShowCheckedModeBanner: false,
@@ -19,7 +21,9 @@ class KamusApp extends StatelessWidget {
 }
 
 class KamusScreen extends StatelessWidget {
-  final List<Map<String, String>> categories = [
+  const KamusScreen({super.key});
+
+  final List<Map<String, String>> categories = const [
     {'title': 'Alfabet', 'image': 'assets/alfabet.png'},
     {'title': 'Kata Tanya', 'image': 'assets/kata_tanya.png'},
     {'title': 'Kata Kerja', 'image': 'assets/kata_kerja.png'},
@@ -34,19 +38,22 @@ class KamusScreen extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              color: Color(0xFF2B4570),
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              color: const Color(0xFF2B4570),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
                       GestureDetector(
-                        onTap: () {},
-                        child: Icon(Icons.arrow_back, color: Colors.white),
+                        onTap: () {
+                          Navigator.pop(context); // Navigasi balik
+                        },
+                        child:
+                            const Icon(Icons.arrow_back, color: Colors.white),
                       ),
-                      SizedBox(width: 16),
-                      Text(
+                      const SizedBox(width: 16),
+                      const Text(
                         'Kamus',
                         style: TextStyle(
                           color: Colors.white,
@@ -56,8 +63,8 @@ class KamusScreen extends StatelessWidget {
                       )
                     ],
                   ),
-                  SizedBox(height: 24),
-                  Text(
+                  const SizedBox(height: 24),
+                  const Text(
                     'Ayo, Belajar\nBahasa Isyarat Bisindo',
                     style: TextStyle(
                       color: Colors.white,
@@ -65,8 +72,8 @@ class KamusScreen extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  SizedBox(height: 8),
-                  Text(
+                  const SizedBox(height: 8),
+                  const Text(
                     'Jangan biarkan batasan bahasa menghalangi!',
                     style: TextStyle(
                       color: Colors.white70,
@@ -78,10 +85,10 @@ class KamusScreen extends StatelessWidget {
             ),
             Expanded(
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: GridView.builder(
                   itemCount: categories.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     childAspectRatio: 0.9,
                     crossAxisSpacing: 16,
@@ -137,6 +144,7 @@ class CategoryCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const CategoryCard({
+    super.key,
     required this.title,
     required this.imagePath,
     required this.onTap,
@@ -150,7 +158,7 @@ class CategoryCard extends StatelessWidget {
     onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: EdgeInsets.all(12),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -164,10 +172,10 @@ class CategoryCard extends StatelessWidget {
                 fit: BoxFit.contain,
               ),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
               title,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
