@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:get/get.dart';
 import 'package:mobilebita/screens/register_screens.dart';
-import 'package:mobilebita/profil_page.dart';
+import 'package:mobilebita/beranda_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -10,7 +13,38 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool _rememberMe = false;
+  bool _obscurePassword = true;
+
+  Future<void> _loginUser() async {
+    final url = Uri.parse(
+        'http://127.0.0.1:8000/api/login'); // Ganti IP sesuai backend kamu
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'email': _emailController.text,
+        'password': _passwordController.text,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final token = data['token'];
+
+      // Simpan token jika diperlukan
+      // SharedPreferences prefs = await SharedPreferences.getInstance();
+      // await prefs.setString('token', token);
+
+      Get.snackbar("Sukses", "Login berhasil!");
+      Get.off(() => const BerandaPage());
+    } else {
+      Get.snackbar("Gagal", "Login gagal: ${response.body}");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,17 +55,6 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Tombol kembali
-            IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ProfilPage()),
-                );
-              },
-            ),
-            const SizedBox(height: 5),
             const SizedBox(height: 60),
             const Text(
               'Login',
@@ -42,19 +65,11 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 const Text('Jika anda belum punya akun, anda dapat '),
                 GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const RegisterPage()),
-                    ); // Navigasi ke halaman daftar
-                  },
+                  onTap: () => Get.to(() => const RegisterPage()),
                   child: const Text(
                     'Daftar disini !',
                     style: TextStyle(
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold,
-                    ),
+                        color: Colors.blue, fontWeight: FontWeight.bold),
                   ),
                 )
               ],
@@ -62,38 +77,45 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 24),
             const Text("Email"),
             const SizedBox(height: 4),
-            const TextField(
-              decoration: InputDecoration(
+            TextField(
+              controller: _emailController,
+              decoration: const InputDecoration(
                 hintText: 'Masukkan email anda',
                 prefixIcon: Icon(Icons.email),
                 border: UnderlineInputBorder(),
                 enabledBorder: UnderlineInputBorder(
-                  borderSide:
-                      BorderSide(color: Colors.blue), // Garis saat tidak fokus
+                  borderSide: BorderSide(color: Colors.blue),
                 ),
                 focusedBorder: UnderlineInputBorder(
-                  borderSide:
-                      BorderSide(color: Colors.blue, width: 2), // Saat fokus
+                  borderSide: BorderSide(color: Colors.blue, width: 2),
                 ),
               ),
             ),
             const SizedBox(height: 16),
             const Text("Password"),
             const SizedBox(height: 4),
-            const TextField(
-              obscureText: true,
+            TextField(
+              controller: _passwordController,
+              obscureText: _obscurePassword,
               decoration: InputDecoration(
                 hintText: 'Masukkan password anda',
-                prefixIcon: Icon(Icons.lock),
-                suffixIcon: Icon(Icons.visibility_off),
-                border: UnderlineInputBorder(),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide:
-                      BorderSide(color: Colors.blue), // Garis saat tidak fokus
+                prefixIcon: const Icon(Icons.lock),
+                suffixIcon: IconButton(
+                  icon: Icon(_obscurePassword
+                      ? Icons.visibility_off
+                      : Icons.visibility),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
                 ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide:
-                      BorderSide(color: Colors.blue, width: 2), // Saat fokus
+                border: const UnderlineInputBorder(),
+                enabledBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.blue),
+                ),
+                focusedBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.blue, width: 2),
                 ),
               ),
             ),
@@ -125,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: _loginUser,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF6495ED),
                   shape: RoundedRectangleBorder(

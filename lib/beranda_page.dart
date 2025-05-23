@@ -88,7 +88,7 @@ class BerandaPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const TranscribPage(),
+                          builder: (context) =>  SpeechTextApp(),
                         ),
                       );
                     },
