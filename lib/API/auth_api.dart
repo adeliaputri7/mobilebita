@@ -27,4 +27,21 @@ class AuthAPI {
 
     return jsonDecode(response.body);
   }
+
+  static Future<List<dynamic>> fetchAlphabet(String token) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/alphabet'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token', // kalau backend pakai Bearer token
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body); // Biasanya list data
+    } else {
+      throw Exception('Failed to fetch alphabet');
+    }
+  }
+
 }

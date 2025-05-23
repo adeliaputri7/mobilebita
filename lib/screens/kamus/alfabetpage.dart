@@ -1,78 +1,77 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:mobilebita/screens/kamus/detail_alfabet_page.dart';
+import 'dart:convert';
 
-class AlfabetPage extends StatelessWidget {
-  final String huruf;
-  final String bahasaIsyarat;
+class AlfabetPage extends StatefulWidget {
+  const AlfabetPage({Key? key}) : super(key: key);
 
-  const AlfabetPage({
-    Key? key,
-    required this.huruf,
-    required this.bahasaIsyarat,
-  }) : super(key: key);
+  @override
+  _AlfabetPageState createState() => _AlfabetPageState();
+}
+
+class _AlfabetPageState extends State<AlfabetPage> {
+  List<dynamic> alphabets = [];
+  bool loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchAlphabet();
+  }
+
+  Future<void> fetchAlphabet() async {
+    try {
+      final response =
+          await http.get(Uri.parse('http://10.10.183.50:8000/api/alphabet'));
+      if (response.statusCode == 200) {
+        setState(() {
+          alphabets = jsonDecode(
+              response.body); // Sesuaikan jika response pakai key data
+          loading = false;
+        });
+      } else {
+        // Handle error
+        setState(() {
+          loading = false;
+        });
+      }
+    } catch (e) {
+      // Handle error
+      setState(() {
+        loading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (loading) {
+      return Center(child: CircularProgressIndicator());
+    }
+
     return Scaffold(
-      body: Column(
-        children: [
-          // Header biru dengan tombol kembali dan bulatan kanan atas
-          Container(
-            height: 100,
-            color: Color(0xFF2D4A7A),
-            child: Stack(
-              children: [
-                Positioned(
-                  top: 50,
-                  left: 10,
-                  child: IconButton(
-                    icon: Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => Navigator.pop(context),
+      appBar: AppBar(title: Text('Daftar Alfabet')),
+      body: ListView.builder(
+        itemCount: alphabets.length,
+        itemBuilder: (context, index) {
+          final item = alphabets[index];
+          return ListTile(
+            title: Text(item['judul'] ?? 'No Title'),
+            subtitle: Text(item['deskripsi'] ?? ''),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => DetailAlfabetPage(
+                    huruf: item['judul'] ?? '',
+                    bahasaIsyarat: item['deskripsi'] ?? '',
                   ),
                 ),
-                Positioned(
-                  top: 50,
-                  right: 20,
-                  child: Container(
-                    width: 30,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      color: Color(0xFF2D4A7A),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 100),
-
-          // Huruf besar dalam card
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 40),
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
-              child: Text(
-                huruf,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 10),
-
-          Text(
-            bahasaIsyarat,
-            style: TextStyle(fontSize: 16),
-          ),
-        ],
+              );
+            },
+          );
+        },
       ),
     );
   }
