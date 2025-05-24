@@ -4,8 +4,6 @@ import 'dart:convert';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart';
 
 class DeteksiPage extends StatefulWidget {
   const DeteksiPage({super.key});
@@ -61,27 +59,47 @@ class DeteksiPageState extends State<DeteksiPage> {
   }
 
   Future<void> sendVideoToServer(File videoFile) async {
-    final uri = Uri.parse('http://192.168.1.2:5000/detect_gesture');
+    final uri = Uri.parse('http://192.168.1.72:5000/detect_gesture');
 
-    var request = http.MultipartRequest('POST', uri);
-    request.files
-        .add(await http.MultipartFile.fromPath('video', videoFile.path));
+    try {
+      var request = http.MultipartRequest('POST', uri);
+      request.files
+          .add(await http.MultipartFile.fromPath('video', videoFile.path));
 
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
-    if (response.statusCode == 200) {
-      final json = response.body;
-      print("Response from server: $json");
-      final gestures = (jsonDecode(json)['gestures'] as List).join(", ");
+      if (response.statusCode == 200) {
+        final json = response.body;
+        print("Response from server: $json");
+        final gestures = (jsonDecode(json)['gestures'] as List).join(", ");
+        setState(() {
+          detectedGestures =
+              gestures.isEmpty ? "Tidak ada gesture terdeteksi" : gestures;
+        });
+      } else {
+        setState(() {
+          detectedGestures =
+              "Server gagal memproses video (Kode ${response.statusCode})";
+        });
+      }
+    } on SocketException catch (_) {
       setState(() {
         detectedGestures =
-            gestures.isEmpty ? "Tidak ada gesture terdeteksi" : gestures;
+            "Tidak bisa terhubung ke server. Pastikan jaringan stabil dan server menyala.";
       });
-    } else {
-      print("Failed to detect gesture: ${response.body}");
+    } on TimeoutException catch (_) {
       setState(() {
-        detectedGestures = "Error mendeteksi gesture: ${response.body}";
+        detectedGestures =
+            "Permintaan ke server melebihi batas waktu. Coba lagi dalam jaringan yang lebih baik.";
+      });
+    } on http.ClientException catch (e) {
+      setState(() {
+        detectedGestures = "Kesalahan klien HTTP: ${e.message}";
+      });
+    } catch (e) {
+      setState(() {
+        detectedGestures = "Terjadi kesalahan tak terduga: $e";
       });
     }
   }
