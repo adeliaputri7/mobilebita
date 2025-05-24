@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class AuthAPI {
-  static const String baseUrl = 'http://127.0.0.1:8000/api/alphabet'; // Ganti URL backend-mu
+  static const String baseUrl = 'http://192.168.1.202:8000/api/alphabet'; // Ganti URL backend-mu
 
   static Future<Map<String, dynamic>> login(String email, String password) async {
     final response = await http.post(

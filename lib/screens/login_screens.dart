@@ -20,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _loginUser() async {
     final url = Uri.parse(
-        'http://127.0.0.1:8000/api/login'); // Ganti IP sesuai backend kamu
+        'http://192.168.1.202/api/login'); // Ganti IP sesuai backend kamu
 
     final response = await http.post(
       url,

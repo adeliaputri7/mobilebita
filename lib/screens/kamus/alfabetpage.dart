@@ -24,7 +24,7 @@ class _AlfabetPageState extends State<AlfabetPage> {
   Future<void> fetchAlphabet() async {
     try {
       final response =
-          await http.get(Uri.parse('http://127.0.0.1:8000/api/alphabet'));
+          await http.get(Uri.parse('http://192.168.1.202:8000/api/alphabet'));
 
       if (response.statusCode == 200) {
         final decodedResponse = jsonDecode(response.body);
