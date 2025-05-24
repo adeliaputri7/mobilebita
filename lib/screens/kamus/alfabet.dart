@@ -120,7 +120,7 @@ class _AlfabetScreenState extends State<AlfabetScreen> {
                                                 ? 'http://127.0.0.1:8000/api/alphabet/storage/${item['gambar']}'
                                                 : null,
                                             videoUrl: item['video_url'] != null
-                                                ? 'http://127.0.0.1:8000:8000/api/alphabet/storage/${item['video_url']}'
+                                                ? 'http://127.0.0.1:8000/api/alphabet/storage/${item['video_url']}'
                                                 : null,
                                           ),
                                         ),
