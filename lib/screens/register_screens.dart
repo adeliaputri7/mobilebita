@@ -34,9 +34,16 @@ class _RegisterPageState extends State<RegisterPage> {
         _birthController.text.isEmpty ||
         _passwordController.text.isEmpty ||
         _confirmController.text.isEmpty) {
-      Get.snackbar("Error", "Semua field wajib diisi.");
+      Get.snackbar(
+        "Validasi Gagal",
+        "Semua field wajib diisi.",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
       return;
     }
+
 
     if (_passwordController.text != _confirmController.text) {
       Get.snackbar("Error", "Password dan konfirmasi tidak cocok.");
@@ -71,13 +78,29 @@ class _RegisterPageState extends State<RegisterPage> {
     );
 
     if (response.statusCode == 200) {
-      Get.snackbar("Berhasil", "Registrasi berhasil!");
+      Get.snackbar(
+        "Berhasil",
+        "Registrasi berhasil!",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+      );
       Get.off(() => const LoginPage());
     } else {
       final body = json.decode(response.body);
-      final message = body['message'] ?? response.body;
-      Get.snackbar("Gagal", "Registrasi gagal: $message");
+      final message = body['message'] ?? "Terjadi kesalahan pada server.";
+
+      Get.snackbar(
+        "Gagal",
+        "Registrasi gagal: $message",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 4),
+      );
     }
+
   }
 
 
