@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/beranda', page: () => const BerandaPage()),
         GetPage(name: '/alfabet', page: () =>  AlfabetScreen()),
         GetPage(name: '/kata_kerja', page: () =>  KataKerjaScreen()),
-        GetPage(name: '/kata_sifat', page: () =>  KataSifat()),
+        GetPage(name: '/kata_sifat', page: () =>  KataSifatScreen()),
         GetPage(name: '/kata_tanya', page: () =>  KataTanyaScreen()),
       ],
     );

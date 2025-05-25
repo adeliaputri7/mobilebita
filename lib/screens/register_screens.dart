@@ -25,84 +25,249 @@ class _RegisterPageState extends State<RegisterPage> {
 
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
+  bool _isLoading = false; // Loading state
+
+  // Enhanced notification methods
+  void _showSuccessNotification(String message) {
+    Get.snackbar(
+      "✅ Berhasil!",
+      message,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.green[600],
+      colorText: Colors.white,
+      duration: const Duration(seconds: 3),
+      margin: const EdgeInsets.all(16),
+      borderRadius: 8,
+      icon: const Icon(Icons.check_circle, color: Colors.white, size: 28),
+      shouldIconPulse: false,
+      animationDuration: const Duration(milliseconds: 500),
+    );
+  }
+
+  void _showErrorNotification(String title, String message) {
+    Get.snackbar(
+      "❌ $title",
+      message,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.red[600],
+      colorText: Colors.white,
+      duration: const Duration(seconds: 4),
+      margin: const EdgeInsets.all(16),
+      borderRadius: 8,
+      icon: const Icon(Icons.error, color: Colors.white, size: 28),
+      shouldIconPulse: false,
+      animationDuration: const Duration(milliseconds: 500),
+    );
+  }
+
+  void _showWarningNotification(String title, String message) {
+    Get.snackbar(
+      "⚠️ $title",
+      message,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.orange[600],
+      colorText: Colors.white,
+      duration: const Duration(seconds: 3),
+      margin: const EdgeInsets.all(16),
+      borderRadius: 8,
+      icon: const Icon(Icons.warning, color: Colors.white, size: 28),
+      shouldIconPulse: false,
+      animationDuration: const Duration(milliseconds: 500),
+    );
+  }
+
+  void _showLoadingDialog() {
+    Get.dialog(
+      WillPopScope(
+        onWillPop: () async => false, // Prevent closing
+        child: const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 20),
+              Text("Mendaftarkan akun..."),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
+  }
+
+  void _hideLoadingDialog() {
+    if (Get.isDialogOpen ?? false) {
+      Get.back();
+    }
+  }
 
   Future<void> _registerUser() async {
-    if (_usernameController.text.isEmpty ||
-        _emailController.text.isEmpty ||
-        _phoneController.text.isEmpty ||
-        _selectedGender == null ||
-        _birthController.text.isEmpty ||
-        _passwordController.text.isEmpty ||
-        _confirmController.text.isEmpty) {
-      Get.snackbar(
-        "Validasi Gagal",
-        "Semua field wajib diisi.",
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.orange,
-        colorText: Colors.white,
-      );
+    // Validation checks with specific error messages
+    if (_usernameController.text.isEmpty) {
+      _showWarningNotification(
+          "Validasi Gagal", "Username tidak boleh kosong.");
       return;
     }
 
-
-    if (_passwordController.text != _confirmController.text) {
-      Get.snackbar("Error", "Password dan konfirmasi tidak cocok.");
+    if (_emailController.text.isEmpty) {
+      _showWarningNotification("Validasi Gagal", "Email tidak boleh kosong.");
       return;
     }
 
-    if (!_emailController.text.contains('@')) {
-      Get.snackbar("Error", "Format email tidak valid.");
+    if (!_emailController.text.contains('@') ||
+        !_emailController.text.contains('.')) {
+      _showWarningNotification("Email Tidak Valid",
+          "Format email tidak sesuai (contoh: user@example.com).");
+      return;
+    }
+
+    if (_phoneController.text.isEmpty) {
+      _showWarningNotification(
+          "Validasi Gagal", "Nomor telepon tidak boleh kosong.");
+      return;
+    }
+
+    if (_phoneController.text.length < 10) {
+      _showWarningNotification(
+          "Nomor Tidak Valid", "Nomor telepon minimal 10 digit.");
+      return;
+    }
+
+    if (_selectedGender == null) {
+      _showWarningNotification(
+          "Validasi Gagal", "Pilih jenis kelamin terlebih dahulu.");
+      return;
+    }
+
+    if (_birthController.text.isEmpty) {
+      _showWarningNotification(
+          "Validasi Gagal", "Tanggal lahir tidak boleh kosong.");
+      return;
+    }
+
+    if (_passwordController.text.isEmpty) {
+      _showWarningNotification(
+          "Validasi Gagal", "Password tidak boleh kosong.");
       return;
     }
 
     if (_passwordController.text.length < 6) {
-      Get.snackbar("Error", "Password minimal 6 karakter.");
+      _showWarningNotification(
+          "Password Lemah", "Password minimal 6 karakter.");
       return;
     }
 
-
-    final url = Uri.parse('http://192.168.1.202/api/register');
-
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'name': _usernameController.text,
-        'email': _emailController.text,
-        'no_hp': _phoneController.text,
-        'jenis_kelamin': _selectedGender,
-        'tgl_lahir': _birthController.text,
-        'password': _passwordController.text,
-        'password_confirmation': _confirmController.text,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      Get.snackbar(
-        "Berhasil",
-        "Registrasi berhasil!",
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
-      );
-      Get.off(() => const LoginPage());
-    } else {
-      final body = json.decode(response.body);
-      final message = body['message'] ?? "Terjadi kesalahan pada server.";
-
-      Get.snackbar(
-        "Gagal",
-        "Registrasi gagal: $message",
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 4),
-      );
+    if (_confirmController.text.isEmpty) {
+      _showWarningNotification(
+          "Validasi Gagal", "Konfirmasi password tidak boleh kosong.");
+      return;
     }
 
+    if (_passwordController.text != _confirmController.text) {
+      _showErrorNotification("Password Tidak Cocok",
+          "Password dan konfirmasi password tidak sama.");
+      return;
+    }
+
+    // Start loading
+    setState(() {
+      _isLoading = true;
+    });
+    _showLoadingDialog();
+
+    try {
+      final url = Uri.parse(
+          'http://192.168.1.202:8000/api/register'); // Fixed URL with port
+
+      final response = await http
+          .post(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: json.encode({
+              'name': _usernameController.text.trim(),
+              'email': _emailController.text.trim().toLowerCase(),
+              'no_hp': _phoneController.text.trim(),
+              'jenis_kelamin': _selectedGender,
+              'tgl_lahir': _birthController.text,
+              'password': _passwordController.text,
+              'password_confirmation': _confirmController.text,
+            }),
+          )
+          .timeout(const Duration(seconds: 30)); // Add timeout
+
+      _hideLoadingDialog();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseBody = json.decode(response.body);
+
+        _showSuccessNotification(
+            "Registrasi berhasil! Selamat datang ${_usernameController.text}!");
+
+        // Clear all fields
+        _clearAllFields();
+
+        // Navigate to login after short delay
+        Future.delayed(const Duration(seconds: 2), () {
+          Get.off(() => const LoginPage());
+        });
+      } else {
+        // Handle different error status codes
+        String errorMessage = "Terjadi kesalahan pada server.";
+
+        try {
+          final body = json.decode(response.body);
+
+          if (body['message'] != null) {
+            errorMessage = body['message'];
+          } else if (body['errors'] != null) {
+            // Handle validation errors from Laravel
+            Map<String, dynamic> errors = body['errors'];
+            List<String> errorList = [];
+            errors.forEach((key, value) {
+              errorList.addAll(List<String>.from(value));
+            });
+            errorMessage = errorList.join('\n');
+          }
+        } catch (e) {
+          errorMessage = "Server error: ${response.statusCode}";
+        }
+
+        _showErrorNotification("Registrasi Gagal", errorMessage);
+      }
+    } catch (e) {
+      _hideLoadingDialog();
+
+      String errorMessage = "Koneksi gagal. Periksa jaringan internet Anda.";
+
+      if (e.toString().contains('TimeoutException')) {
+        errorMessage = "Koneksi timeout. Server tidak merespons.";
+      } else if (e.toString().contains('SocketException')) {
+        errorMessage =
+            "Tidak dapat terhubung ke server. Periksa koneksi internet.";
+      }
+
+      _showErrorNotification("Kesalahan Koneksi", errorMessage);
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
+  void _clearAllFields() {
+    _usernameController.clear();
+    _emailController.clear();
+    _phoneController.clear();
+    _passwordController.clear();
+    _confirmController.clear();
+    _birthController.clear();
+    setState(() {
+      _selectedGender = null;
+      _selectedDate = null;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -138,7 +303,7 @@ class _RegisterPageState extends State<RegisterPage> {
               _buildTextField('Username', Icons.person, _usernameController),
               _buildTextField('Email', Icons.email, _emailController),
               _buildTextField('No Telepon', Icons.phone, _phoneController),
-             const Text("Jenis Kelamin"),
+              const Text("Jenis Kelamin"),
               const SizedBox(height: 4),
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
@@ -165,7 +330,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 },
               ),
               const SizedBox(height: 16),
-
               const Text("Tanggal Lahir"),
               const SizedBox(height: 4),
               GestureDetector(
@@ -202,7 +366,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
               const SizedBox(height: 16),
-
               _buildPasswordField('Password', _passwordController, true),
               _buildPasswordField(
                   'Confirm Password', _confirmController, false),
@@ -210,12 +373,30 @@ class _RegisterPageState extends State<RegisterPage> {
               Center(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[400],
+                    backgroundColor:
+                        _isLoading ? Colors.grey : Colors.blue[400],
                     padding: const EdgeInsets.symmetric(
                         horizontal: 40, vertical: 16),
                   ),
-                  onPressed: _registerUser,
-                  child: const Text('Sign up'),
+                  onPressed: _isLoading ? null : _registerUser,
+                  child: _isLoading
+                      ? const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Text('Mendaftar...'),
+                          ],
+                        )
+                      : const Text('Sign up'),
                 ),
               ),
             ],

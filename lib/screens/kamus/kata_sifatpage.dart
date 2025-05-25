@@ -1,53 +1,98 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:mobilebita/screens/kamus/detail_katasifat.dart';
 
-class KataSifatPage extends StatelessWidget {
+class KataSifatPage extends StatefulWidget {
+  final int id;
   final String kata;
+  final String? gambarUrl;
+  final String? videoUrl;
+  final String? deskripsi;
 
-  const KataSifatPage({Key? key, required this.kata}) : super(key: key);
+  const KataSifatPage({
+    Key? key,
+    required this.id,
+    required this.kata,
+    this.gambarUrl,
+    this.videoUrl,
+    this.deskripsi,
+  }) : super(key: key);
+
+  @override
+  State<KataSifatPage> createState() => _KataSifatPageState();
+}
+
+class _KataSifatPageState extends State<KataSifatPage> {
+  List<dynamic> data = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchKataSifat();
+  }
+
+  Future<void> fetchKataSifat() async {
+    final response =
+        await http.get(Uri.parse('http://192.168.1.202:8000/api/katasifat'));
+    if (response.statusCode == 200) {
+      setState(() {
+        data = json.decode(response.body);
+      });
+    } else {
+      print('Gagal memuat data kata sifat');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF2C3E73),
-      appBar: AppBar(
-        backgroundColor: Color(0xFF2C3E73),
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Align(
-            alignment: Alignment.topRight,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 20.0),
-              child: CircleAvatar(
-                backgroundColor: Color(0xFF2C3E73),
-                child: Icon(Icons.replay, color: Colors.white),
-              ),
-            ),
-          ),
-          Spacer(),
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 20),
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(10),
-              color: Colors.white,
-            ),
-            child: Text(
-              kata,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-              textAlign: TextAlign.center,
+            color: const Color(0xFF2D4A7A),
+            padding:
+                const EdgeInsets.only(top: 50, left: 16, right: 16, bottom: 20),
+            child: Row(
+              children: const [
+                Spacer(),
+                Text(
+                  "Kata Sifat",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22),
+                ),
+                Spacer(),
+              ],
             ),
           ),
-          SizedBox(height: 10),
-          Text("Bisindo", style: TextStyle(color: Colors.black87)),
-          Spacer(),
+          Expanded(
+            child: ListView.builder(
+              itemCount: data.length,
+              itemBuilder: (context, index) {
+                final item = data[index];
+                return ListTile(
+                  title: Text(item['judul'],
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => DetailKataSifatPage(
+                          kata: item['judul'],
+                          deskripsi: item['deskripsi'],
+                          gambarUrl: item['gambar'],
+                          videoUrl: item['video_url'],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
         ],
       ),
     );

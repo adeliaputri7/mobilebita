@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:io';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobilebita/screens/register_screens.dart';
 import 'package:mobilebita/beranda_page.dart';
 
@@ -17,32 +19,217 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   bool _rememberMe = false;
   bool _obscurePassword = true;
+  bool _isLoading = false; // Loading state
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  // Validasi input
+  bool _validateInput() {
+    if (_emailController.text.trim().isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Email tidak boleh kosong",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return false;
+    }
+
+    if (!GetUtils.isEmail(_emailController.text.trim())) {
+      Get.snackbar(
+        "Error",
+        "Format email tidak valid",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return false;
+    }
+
+    if (_passwordController.text.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Password tidak boleh kosong",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return false;
+    }
+
+    if (_passwordController.text.length < 6) {
+      Get.snackbar(
+        "Error",
+        "Password minimal 6 karakter",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return false;
+    }
+
+    return true;
+  }
 
   Future<void> _loginUser() async {
-    final url = Uri.parse(
-        'http://192.168.1.202/api/login'); // Ganti IP sesuai backend kamu
+    // Validasi input dulu
+    if (!_validateInput()) return;
 
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'email': _emailController.text,
-        'password': _passwordController.text,
-      }),
-    );
+    setState(() {
+      _isLoading = true;
+    });
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      final token = data['token'];
+    try {
+      final url = Uri.parse(
+          'http://192.168.1.202:8000/api/login'); // Tambahkan port 8000
 
-      // Simpan token jika diperlukan
-      // SharedPreferences prefs = await SharedPreferences.getInstance();
-      // await prefs.setString('token', token);
+      final response = await http
+          .post(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json', // Penting untuk Laravel API
+            },
+            body: json.encode({
+              'email': _emailController.text.trim(),
+              'password': _passwordController.text,
+            }),
+          )
+          .timeout(const Duration(seconds: 15)); // Timeout 15 detik
 
-      Get.snackbar("Sukses", "Login berhasil!");
-      Get.off(() => const BerandaPage());
-    } else {
-      Get.snackbar("Gagal", "Login gagal: ${response.body}");
+      // Debug: print response
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        // Handle different response structures
+        final token =
+            data['token'] ?? data['access_token'] ?? data['data']?['token'];
+        final user = data['user'] ?? data['data']?['user'] ?? data['data'];
+
+        if (token != null) {
+          // Simpan token dan data user
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('auth_token', token);
+
+          if (user != null) {
+            await prefs.setString('user_data', json.encode(user));
+          }
+
+          // Simpan "Remember Me" preference
+          if (_rememberMe) {
+            await prefs.setBool('remember_me', true);
+            await prefs.setString('saved_email', _emailController.text.trim());
+          }
+
+          Get.snackbar(
+            "Sukses",
+            "Login berhasil!",
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+          );
+
+          // Navigate dengan delay untuk menampilkan snackbar
+          await Future.delayed(const Duration(milliseconds: 500));
+          Get.offAll(() => const BerandaPage());
+        } else {
+          Get.snackbar(
+            "Error",
+            "Token tidak ditemukan dalam response",
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+        }
+      } else if (response.statusCode == 401) {
+        Get.snackbar(
+          "Error",
+          "Email atau password salah",
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      } else if (response.statusCode == 422) {
+        // Validation errors
+        final errorData = json.decode(response.body);
+        String errorMessage = "Validation error";
+
+        if (errorData['errors'] != null) {
+          final errors = errorData['errors'] as Map<String, dynamic>;
+          errorMessage = errors.values.first[0].toString();
+        } else if (errorData['message'] != null) {
+          errorMessage = errorData['message'].toString();
+        }
+
+        Get.snackbar(
+          "Error",
+          errorMessage,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      } else {
+        Get.snackbar(
+          "Error",
+          "Server error: ${response.statusCode}",
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } on SocketException {
+      Get.snackbar(
+        "Error",
+        "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } on http.ClientException {
+      Get.snackbar(
+        "Error",
+        "Network error. Periksa koneksi internet Anda.",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } on FormatException {
+      Get.snackbar(
+        "Error",
+        "Response server tidak valid",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      print('Login Error: $e');
+      Get.snackbar(
+        "Error",
+        "Terjadi kesalahan: ${e.toString()}",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  // Load saved email jika "Remember Me" aktif
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedData();
+  }
+
+  Future<void> _loadSavedData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool rememberMe = prefs.getBool('remember_me') ?? false;
+
+    if (rememberMe) {
+      String savedEmail = prefs.getString('saved_email') ?? '';
+      setState(() {
+        _rememberMe = rememberMe;
+        _emailController.text = savedEmail;
+      });
     }
   }
 
@@ -79,6 +266,8 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 4),
             TextField(
               controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              textInputAction: TextInputAction.next,
               decoration: const InputDecoration(
                 hintText: 'Masukkan email anda',
                 prefixIcon: Icon(Icons.email),
@@ -97,6 +286,8 @@ class _LoginPageState extends State<LoginPage> {
             TextField(
               controller: _passwordController,
               obscureText: _obscurePassword,
+              textInputAction: TextInputAction.done,
+              onSubmitted: (_) => _loginUser(),
               decoration: InputDecoration(
                 hintText: 'Masukkan password anda',
                 prefixIcon: const Icon(Icons.lock),
@@ -136,9 +327,15 @@ class _LoginPageState extends State<LoginPage> {
                     const Text("Ingat Saya"),
                   ],
                 ),
-                const Text(
-                  "Lupa Password ?",
-                  style: TextStyle(color: Colors.grey),
+                GestureDetector(
+                  onTap: () {
+                    // TODO: Implement forgot password
+                    Get.snackbar("Info", "Fitur lupa password belum tersedia");
+                  },
+                  child: const Text(
+                    "Lupa Password ?",
+                    style: TextStyle(color: Colors.grey),
+                  ),
                 ),
               ],
             ),
@@ -147,18 +344,39 @@ class _LoginPageState extends State<LoginPage> {
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: _loginUser,
+                onPressed: _isLoading ? null : _loginUser,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6495ED),
+                  backgroundColor:
+                      _isLoading ? Colors.grey : const Color(0xFF6495ED),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
                   elevation: 5,
                 ),
-                child: const Text(
-                  'Login',
-                  style: TextStyle(color: Colors.white),
-                ),
+                child: _isLoading
+                    ? const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            'Logging in...',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      )
+                    : const Text(
+                        'Login',
+                        style: TextStyle(color: Colors.white),
+                      ),
               ),
             ),
             const SizedBox(height: 24),
@@ -170,10 +388,24 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 12),
             Center(
-              child: Image.asset(
-                'assets/logo_google.png',
-                width: 48,
-                height: 48,
+              child: GestureDetector(
+                onTap: () {
+                  // TODO: Implement Google Sign In
+                  Get.snackbar("Info", "Google Sign In belum tersedia");
+                },
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: const Icon(
+                    Icons.g_mobiledata,
+                    size: 32,
+                    color: Colors.red,
+                  ),
+                ),
               ),
             )
           ],

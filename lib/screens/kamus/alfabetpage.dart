@@ -21,10 +21,15 @@ class _AlfabetPageState extends State<AlfabetPage> {
     fetchAlphabet();
   }
 
-  Future<void> fetchAlphabet() async {
+Future<void> fetchAlphabet() async {
     try {
-      final response =
-          await http.get(Uri.parse('http://192.168.1.202:8000/api/alphabet'));
+      final response = await http.get(
+        Uri.parse('http://192.168.1.202:8000/api/alphabet'),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      );
 
       if (response.statusCode == 200) {
         final decodedResponse = jsonDecode(response.body);
@@ -59,6 +64,7 @@ class _AlfabetPageState extends State<AlfabetPage> {
       print('Error fetching alphabet: $e');
     }
   }
+
 
   // Fungsi untuk refresh data
   Future<void> _refreshData() async {

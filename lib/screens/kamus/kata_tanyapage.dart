@@ -1,65 +1,82 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:mobilebita/screens/kamus/detail_katatanya.dart';
 
-class KataTanyaPage extends StatelessWidget {
-  final String kata;
+class KataTanyaPage extends StatefulWidget {
+  @override
+  _KataTanyaPageState createState() => _KataTanyaPageState();
+}
 
-  const KataTanyaPage({Key? key, required this.kata}) : super(key: key);
+class _KataTanyaPageState extends State<KataTanyaPage> {
+  List<dynamic> data = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchKataTanya();
+  }
+
+  Future<void> fetchKataTanya() async {
+    final response =
+        await http.get(Uri.parse('http://192.168.1.202:8000/api/katatanya'));
+    if (response.statusCode == 200) {
+      setState(() {
+        data = json.decode(response.body);
+      });
+    } else {
+      print('Gagal memuat data kata tanya');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
-          // Header
           Container(
-            color: Color(0xFF2D4A7A),
+            color: const Color(0xFF2D4A7A),
             padding:
-                const EdgeInsets.only(top: 50, left: 8, right: 16, bottom: 16),
+                const EdgeInsets.only(top: 50, left: 16, right: 16, bottom: 20),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () => Navigator.pop(context),
+              children: const [
+                Spacer(),
+                Text(
+                  "Kata Tanya",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22),
                 ),
-                IconButton(
-                  icon: Icon(Icons.replay, color: Colors.white),
-                  onPressed: () {
-                    // Tambahkan aksi jika perlu
-                  },
-                ),
+                Spacer(),
               ],
             ),
           ),
-
-          const SizedBox(height: 100),
-
-          // Kartu kata
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              width: double.infinity,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Center(
-                child: Text(
-                  kata,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 22,
-                  ),
-                ),
-              ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: data.length,
+              itemBuilder: (context, index) {
+                final item = data[index];
+                return ListTile(
+                  title: Text(item['judul'],
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => DetailKataTanyaPage(
+                          kata: item['judul'],
+                          deskripsi: item['deskripsi'],
+                          gambarUrl: item['gambar'],
+                          videoUrl: item['video_url'],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
             ),
-          ),
-
-          const SizedBox(height: 8),
-          Text(
-            "Bisindo",
-            style: TextStyle(fontSize: 16),
           ),
         ],
       ),

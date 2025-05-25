@@ -1,46 +1,92 @@
 import 'package:flutter/material.dart';
-import 'kata_sifatpage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'detail_katasifat.dart';
 
-class KataSifat extends StatelessWidget {
-  final List<String> kataSifatList = [
-    'Senang',
-    'Sedih',
-    'Besar',
-    'Kecil',
-    'Baik'
-  ];
+class KataSifatScreen extends StatefulWidget {
+  @override
+  _KataSifatScreenState createState() => _KataSifatScreenState();
+}
+
+class _KataSifatScreenState extends State<KataSifatScreen> {
+  List<dynamic> data = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchKataSifat();
+  }
+
+  Future<void> fetchKataSifat() async {
+    final response =
+        await http.get(Uri.parse('http://192.168.1.202:8000/api/katasifat'));
+
+    if (response.statusCode == 200) {
+      setState(() {
+        data = json.decode(response.body);
+      });
+    } else {
+      print('Gagal memuat data kata sifat');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Kata Sifat'),
-        backgroundColor: Color(0xFF2C3E73),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: ListView.builder(
-        itemCount: kataSifatList.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(
-              kataSifatList[index],
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            trailing: Icon(Icons.chevron_right),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      KataSifatPage(kata: kataSifatList[index]),
+      body: Column(
+        children: [
+          // Header
+          Container(
+            color: const Color(0xFF2D4A7A),
+            padding:
+                const EdgeInsets.only(top: 50, left: 16, right: 16, bottom: 20),
+            child: Row(
+              children: const [
+                Spacer(),
+                Text(
+                  "Kata Sifat",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                  ),
                 ),
-              );
-            },
-          );
-        },
+                Spacer(),
+              ],
+            ),
+          ),
+          // List data dari API
+          Expanded(
+            child: ListView.separated(
+              itemCount: data.length,
+              separatorBuilder: (context, index) =>
+                  const Divider(height: 1, color: Color(0xFF2D4A7A)),
+              itemBuilder: (context, index) {
+                final item = data[index];
+                return ListTile(
+                  title: Text(
+                    item['judul'],
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => DetailKataSifatPage(
+                          kata: item['judul'],
+                          deskripsi: item['deskripsi'],
+                          gambarUrl: item['gambar'],
+                          videoUrl: item['video_url'],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

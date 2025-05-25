@@ -122,7 +122,7 @@ class KamusScreen extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => KataSifat()),
+                                  builder: (context) => KataSifatScreen()),
                             );
                           }
                         },
