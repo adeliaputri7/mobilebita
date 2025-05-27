@@ -1,11 +1,104 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:mobilebita/informasi_page.dart';
+import 'package:mobilebita/profil_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'deteksi.dart';
 import 'transcrib.dart';
 import 'kamus.dart';
 
-class BerandaPage extends StatelessWidget {
+
+
+class User {
+  final String name;
+
+  User({required this.name});
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(name: json['name']);
+  }
+}
+
+class BerandaPage extends StatefulWidget {
   const BerandaPage({super.key});
+
+  @override
+  State<BerandaPage> createState() => _BerandaPageState();
+}
+
+class _BerandaPageState extends State<BerandaPage> {
+  late Future<User> futureUser;
+  int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    futureUser = fetchUser();
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    // Navigasi ke halaman yang sesuai
+    switch (index) {
+      case 0:
+        // Sudah di halaman Beranda, tidak perlu navigasi
+        break;
+      case 1:
+        // Navigasi ke halaman Informasi
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => InformasiPage(),
+          ),
+        ).then((_) {
+          // Reset selected index ketika kembali ke beranda
+          setState(() {
+            _selectedIndex = 0;
+          });
+        });
+        break;
+      case 2:
+        // Navigasi ke halaman Profil
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProfilPage(),
+          ),
+        ).then((_) {
+          // Reset selected index ketika kembali ke beranda
+          setState(() {
+            _selectedIndex = 0;
+          });
+        });
+        break;
+    }
+  }
+
+  Future<User> fetchUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token'); // Token disimpan setelah login
+
+    if (token == null) throw Exception('Token tidak ditemukan');
+
+    final response = await http.get(
+      Uri.parse('http://10.10.180.39:8000/api/user'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return User.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Gagal memuat data user');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,56 +107,27 @@ class BerandaPage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // HEADER
-            Container(
-              padding: EdgeInsets.fromLTRB(
-                16,
-                MediaQuery.of(context).padding.top + 16,
-                16,
-                0,
-              ),
-              height: 200,
-              decoration: const BoxDecoration(
-                color: Color(0xFF253A7D),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text('Hai,',
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 18)),
-                        Text('Safina Adelia',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 26,
-                                fontWeight: FontWeight.bold)),
-                        SizedBox(height: 5),
-                        Text(
-                          'Mulai petualangan bahasa isyarat Anda hari ini!',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Image.asset(
-                      'assets/person1.png',
-                      height: MediaQuery.of(context).size.height * 0.22,
-                      fit: BoxFit.contain,
-                    ),
-                  )
-                ],
-              ),
+            FutureBuilder<User>(
+              future: futureUser,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return buildHeader(snapshot.data!.name);
+                } else if (snapshot.hasError) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Text("Gagal memuat nama pengguna",
+                        style: TextStyle(color: Colors.red)),
+                  );
+                }
+                return const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: CircularProgressIndicator(),
+                );
+              },
             ),
-
             const SizedBox(height: 20),
 
-            // FITUR UTAMA
+            // Menu fitur
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
@@ -88,7 +152,7 @@ class BerandaPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>  TranscribPage(),
+                          builder: (context) => TranscribPage(),
                         ),
                       );
                     },
@@ -111,7 +175,7 @@ class BerandaPage extends StatelessWidget {
 
             const SizedBox(height: 25),
 
-            // BANNER "Yuk belajar"
+            // Banner carousel
             CarouselSlider(
               options: CarouselOptions(
                 height: 180.0,
@@ -119,7 +183,7 @@ class BerandaPage extends StatelessWidget {
                 autoPlay: true,
                 viewportFraction: 0.9,
               ),
-              items: [1, 2, 3, 4, 5].map((i) {
+              items: [1, 2, 3].map((i) {
                 return Builder(
                   builder: (BuildContext context) {
                     return Container(
@@ -169,7 +233,7 @@ class BerandaPage extends StatelessWidget {
 
             const SizedBox(height: 25),
 
-            // INFORMASI TERKINI
+            // Informasi terkini
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
@@ -186,7 +250,7 @@ class BerandaPage extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-            // CARD INFORMASI
+            // Card informasi
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
@@ -231,6 +295,73 @@ class BerandaPage extends StatelessWidget {
             const SizedBox(height: 30),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        selectedItemColor: const Color(0xFF253A7D),
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Beranda',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bookmark),
+            label: 'Informasi',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profil',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildHeader(String name) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        16,
+        MediaQuery.of(context).padding.top + 16,
+        16,
+        0,
+      ),
+      height: 200,
+      decoration: const BoxDecoration(
+        color: Color(0xFF253A7D),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Hai,',
+                    style: TextStyle(color: Colors.white, fontSize: 18)),
+                Text(name,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold)),
+                const SizedBox(height: 5),
+                const Text(
+                  'Mulai petualangan bahasa isyarat Anda hari ini!',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ],
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Image.asset(
+              'assets/person1.png',
+              height: MediaQuery.of(context).size.height * 0.22,
+              fit: BoxFit.contain,
+            ),
+          )
+        ],
       ),
     );
   }

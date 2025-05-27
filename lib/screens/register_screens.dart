@@ -176,7 +176,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
     try {
       final url = Uri.parse(
-          'http://192.168.1.202:8000/api/register'); // Fixed URL with port
+          'http://10.10.180.39:8000/api/register'); // Fixed URL with port
 
       final response = await http
           .post(

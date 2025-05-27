@@ -19,7 +19,7 @@ class _KataTanyaPageState extends State<KataTanyaPage> {
 
   Future<void> fetchKataTanya() async {
     final response =
-        await http.get(Uri.parse('http://192.168.1.202:8000/api/katatanya'));
+        await http.get(Uri.parse('http://10.10.180.39:8000/api/katatanya'));
     if (response.statusCode == 200) {
       setState(() {
         data = json.decode(response.body);

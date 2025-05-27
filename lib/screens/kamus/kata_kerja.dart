@@ -22,7 +22,7 @@ class _KataKerjaScreenState extends State<KataKerjaScreen> {
 
   Future<void> fetchKataKerja() async {
     final response = await http.get(Uri.parse(
-        'http://192.168.1.202:8000/api/katakerja')); // Ganti URL jika perlu
+        'http://10.10.180.39:8000/api/katakerja')); // Ganti URL jika perlu
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);

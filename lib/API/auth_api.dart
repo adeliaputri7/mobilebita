@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 class AuthAPI {
-  static const String baseUrl = 'http://192.168.1.202:8000/api';
+  static const String baseUrl = 'http://10.10.180.39:8000/api';
   static const Duration timeoutDuration = Duration(seconds: 15);
 
   // 1. LOGIN dengan error handling lengkap

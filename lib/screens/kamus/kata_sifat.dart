@@ -19,7 +19,7 @@ class _KataSifatScreenState extends State<KataSifatScreen> {
 
   Future<void> fetchKataSifat() async {
     final response =
-        await http.get(Uri.parse('http://192.168.1.202:8000/api/katasifat'));
+        await http.get(Uri.parse('http://10.10.180.39:8000/api/katasifat'));
 
     if (response.statusCode == 200) {
       setState(() {
