@@ -15,6 +15,7 @@ class DeteksiPageState extends State<DeteksiPage> {
   CameraController? _controller;
   bool isRecording = false;
   String detectedGestures = "Belum ada gesture";
+  String errorMessage = "";
 
   @override
   void initState() {
@@ -39,9 +40,14 @@ class DeteksiPageState extends State<DeteksiPage> {
     try {
       await _controller!.startVideoRecording();
       isRecording = true;
-      setState(() {});
+      setState(() {
+        errorMessage = "";
+        detectedGestures = "Merekam gesture...";
+      });
     } catch (e) {
-      print("Error starting recording: $e");
+      setState(() {
+        errorMessage = "Gagal memulai perekaman: $e";
+      });
     }
   }
 
@@ -49,17 +55,23 @@ class DeteksiPageState extends State<DeteksiPage> {
     if (_controller == null || !_controller!.value.isRecordingVideo) return;
 
     try {
-      XFile videoFile = await _controller!.stopVideoRecording();
+      final XFile videoFile = await _controller!.stopVideoRecording();
       isRecording = false;
-      setState(() {});
+      setState(() {
+        errorMessage = "";
+        detectedGestures = "Mengirim video ke server...";
+      });
       await sendVideoToServer(File(videoFile.path));
     } catch (e) {
-      print("Error stopping recording: $e");
+      setState(() {
+        errorMessage = "Gagal menghentikan perekaman: $e";
+        isRecording = false;
+      });
     }
   }
 
   Future<void> sendVideoToServer(File videoFile) async {
-    final uri = Uri.parse('http://192.168.1.72:5000/detect_gesture');
+    final uri = Uri.parse('http://10.10.181.69:5000/detect_gesture');
 
     try {
       var request = http.MultipartRequest('POST', uri);
@@ -71,35 +83,39 @@ class DeteksiPageState extends State<DeteksiPage> {
 
       if (response.statusCode == 200) {
         final json = response.body;
-        print("Response from server: $json");
-        final gestures = (jsonDecode(json)['gestures'] as List).join(", ");
+        final gestures = (jsonDecode(json)['gestures'] as List).join("");
         setState(() {
           detectedGestures =
               gestures.isEmpty ? "Tidak ada gesture terdeteksi" : gestures;
+          errorMessage = "";
         });
       } else {
         setState(() {
-          detectedGestures =
+          errorMessage =
               "Server gagal memproses video (Kode ${response.statusCode})";
+          detectedGestures = "";
         });
       }
-    } on SocketException catch (_) {
+    } on SocketException {
       setState(() {
-        detectedGestures =
+        errorMessage =
             "Tidak bisa terhubung ke server. Pastikan jaringan stabil dan server menyala.";
+        detectedGestures = "";
       });
-    } on TimeoutException catch (_) {
+    } on TimeoutException {
       setState(() {
-        detectedGestures =
-            "Permintaan ke server melebihi batas waktu. Coba lagi dalam jaringan yang lebih baik.";
+        errorMessage = "Permintaan ke server melebihi batas waktu.";
+        detectedGestures = "";
       });
     } on http.ClientException catch (e) {
       setState(() {
-        detectedGestures = "Kesalahan klien HTTP: ${e.message}";
+        errorMessage = "Kesalahan klien HTTP: ${e.message}";
+        detectedGestures = "";
       });
     } catch (e) {
       setState(() {
-        detectedGestures = "Terjadi kesalahan tak terduga: $e";
+        errorMessage = "Terjadi kesalahan tak terduga: $e";
+        detectedGestures = "";
       });
     }
   }
@@ -117,11 +133,10 @@ class DeteksiPageState extends State<DeteksiPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Deteksi Gesture Video")),
+      appBar: AppBar(title: const Text("Deteksi Gesture dari Video")),
       body: Column(
         children: [
           Expanded(
-            // <-- Ini bikin CameraPreview expand maksimal ruang yg tersedia
             child: AspectRatio(
               aspectRatio: _controller!.value.aspectRatio,
               child: CameraPreview(_controller!),
@@ -130,10 +145,20 @@ class DeteksiPageState extends State<DeteksiPage> {
           const SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text("Gesture terdeteksi: $detectedGestures",
-                style: const TextStyle(fontSize: 20)),
+            child: Text(
+              "Hasil deteksi: $detectedGestures",
+              style: const TextStyle(fontSize: 20),
+            ),
           ),
-          const SizedBox(height: 20),
+          if (errorMessage.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                "Error: $errorMessage",
+                style: const TextStyle(color: Colors.red),
+              ),
+            ),
+          const SizedBox(height: 10),
           ElevatedButton(
             onPressed: isRecording ? stopRecording : startRecording,
             child: Text(isRecording ? "Berhenti Merekam" : "Mulai Merekam"),
