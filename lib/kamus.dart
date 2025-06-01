@@ -4,21 +4,6 @@ import 'package:mobilebita/screens/kamus/kata_kerja.dart';
 import 'package:mobilebita/screens/kamus/kata_sifat.dart';
 import 'package:mobilebita/screens/kamus/kata_tanya.dart';
 
-void main() => runApp(const KamusApp());
-
-class KamusApp extends StatelessWidget {
-  const KamusApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Kamus Bisindo',
-      home: KamusScreen(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}
-
 class KamusScreen extends StatelessWidget {
   const KamusScreen({super.key});
 
@@ -32,13 +17,15 @@ class KamusScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              color: const Color(0xFF2B4570),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      appBar: PreferredSize(
+        preferredSize:
+            const Size.fromHeight(150), // tambahkan tinggi secukupnya
+        child: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: const Color(0xFF2B4570),
+          flexibleSpace: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -46,12 +33,12 @@ class KamusScreen extends StatelessWidget {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          Navigator.pop(context); // Navigasi balik
+                          Navigator.pop(context);
                         },
                         child:
                             const Icon(Icons.arrow_back, color: Colors.white),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 12),
                       const Text(
                         'Kamus',
                         style: TextStyle(
@@ -59,29 +46,36 @@ class KamusScreen extends StatelessWidget {
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                         ),
-                      )
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 12),
                   const Text(
                     'Ayo, Belajar\nBahasa Isyarat Bisindo',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 22,
+                      fontSize: 20,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   const Text(
                     'Jangan biarkan batasan bahasa menghalangi!',
                     style: TextStyle(
                       color: Colors.white70,
-                      fontSize: 14,
+                      fontSize: 13,
                     ),
                   ),
                 ],
               ),
             ),
+          ),
+          elevation: 0,
+        ),
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(16),
