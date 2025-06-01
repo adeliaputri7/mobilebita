@@ -5,11 +5,10 @@ import 'package:mobilebita/informasi_page.dart';
 import 'package:mobilebita/profil_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:get/get.dart'; // Tambahkan import ini
 import 'deteksi.dart';
 import 'transcrib.dart';
 import 'kamus.dart';
-
-
 
 class User {
   final String name;
@@ -17,7 +16,14 @@ class User {
   User({required this.name});
 
   factory User.fromJson(Map<String, dynamic> json) {
-    return User(name: json['name']);
+    // Perbaikan: Handle berbagai struktur response
+    if (json.containsKey('user') && json['user'] != null) {
+      return User(name: json['user']['name']);
+    } else if (json.containsKey('name')) {
+      return User(name: json['name']);
+    } else {
+      throw Exception('Struktur response tidak valid');
+    }
   }
 }
 
@@ -43,34 +49,28 @@ class _BerandaPageState extends State<BerandaPage> {
       _selectedIndex = index;
     });
 
-    // Navigasi ke halaman yang sesuai
     switch (index) {
       case 0:
-        // Sudah di halaman Beranda, tidak perlu navigasi
         break;
       case 1:
-        // Navigasi ke halaman Informasi
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => InformasiPage(),
           ),
         ).then((_) {
-          // Reset selected index ketika kembali ke beranda
           setState(() {
             _selectedIndex = 0;
           });
         });
         break;
       case 2:
-        // Navigasi ke halaman Profil
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => ProfilPage(),
           ),
         ).then((_) {
-          // Reset selected index ketika kembali ke beranda
           setState(() {
             _selectedIndex = 0;
           });
@@ -80,24 +80,61 @@ class _BerandaPageState extends State<BerandaPage> {
   }
 
   Future<User> fetchUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token'); // Token disimpan setelah login
+    try {
+      final prefs = await SharedPreferences.getInstance();
 
-    if (token == null) throw Exception('Token tidak ditemukan');
+      // PERBAIKAN: Gunakan key yang sama dengan LoginPage
+      final token =
+          prefs.getString('auth_token'); // Ubah dari 'token' ke 'auth_token'
 
-    final response = await http.get(
-      Uri.parse('https://bisiktangan.my.id/api/user'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      },
-    );
+      print('Token from SharedPreferences: $token'); // Debug
 
-    if (response.statusCode == 200) {
-      return User.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Gagal memuat data user');
+      if (token == null || token.isEmpty) {
+        throw Exception('Token tidak ditemukan');
+      }
+
+      final response = await http.get(
+        Uri.parse('https://bisiktangan.my.id/api/user'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 15)); // Tambahkan timeout
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+
+        // Handle berbagai struktur response yang mungkin
+        if (jsonResponse is Map<String, dynamic>) {
+          return User.fromJson(jsonResponse);
+        } else {
+          throw Exception('Format response tidak valid');
+        }
+      } else if (response.statusCode == 401) {
+        // Token expired atau tidak valid
+        await _handleTokenExpired();
+        throw Exception('Token tidak valid atau expired');
+      } else {
+        throw Exception('Gagal memuat data user: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error in fetchUser: $e');
+      rethrow;
     }
+  }
+
+  // Method untuk handle token expired
+  Future<void> _handleTokenExpired() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('auth_token');
+    await prefs.remove('user_data');
+
+    // Redirect ke login page
+    Get.offAllNamed('/login'); // Atau gunakan Navigator jika tidak pakai GetX
   }
 
   @override
@@ -110,18 +147,72 @@ class _BerandaPageState extends State<BerandaPage> {
             FutureBuilder<User>(
               future: futureUser,
               builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return buildHeader(snapshot.data!.name);
-                } else if (snapshot.hasError) {
-                  return const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Text("Gagal memuat nama pengguna",
-                        style: TextStyle(color: Colors.red)),
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Container(
+                    padding: EdgeInsets.fromLTRB(
+                      16,
+                      MediaQuery.of(context).padding.top + 16,
+                      16,
+                      20,
+                    ),
+                    height: 200,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF253A7D),
+                    ),
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    ),
                   );
+                } else if (snapshot.hasError) {
+                  print('Error: ${snapshot.error}');
+                  return Container(
+                    padding: EdgeInsets.fromLTRB(
+                      16,
+                      MediaQuery.of(context).padding.top + 16,
+                      16,
+                      20,
+                    ),
+                    height: 200,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF253A7D),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          color: Colors.white,
+                          size: 48,
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          "Gagal memuat data pengguna",
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 8),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              futureUser = fetchUser();
+                            });
+                          },
+                          child: Text('Coba Lagi'),
+                        ),
+                      ],
+                    ),
+                  );
+                } else if (snapshot.hasData) {
+                  return buildHeader(snapshot.data!.name);
                 }
-                return const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: CircularProgressIndicator(),
+
+                return Container(
+                  height: 200,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF253A7D),
+                  ),
                 );
               },
             ),
@@ -338,7 +429,7 @@ class _BerandaPageState extends State<BerandaPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Hai,',
+                const Text('Selamat Datang,',
                     style: TextStyle(color: Colors.white, fontSize: 18)),
                 Text(name,
                     style: const TextStyle(
