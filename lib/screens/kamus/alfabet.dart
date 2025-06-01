@@ -112,10 +112,10 @@ class _AlfabetScreenState extends State<AlfabetScreen> {
                                             bahasaIsyarat:
                                                 item['deskripsi'] ?? '',
                                             gambarUrl: item['gambar'] != null
-                                                ? 'https://bisiktangan.my.id/api/alphabet/storage/${item['gambar']}'
+                                                ? 'https://bisiktangan.my.id/storage/${item['gambar']}'
                                                 : null,
                                             videoUrl: item['video_url'] != null
-                                                ? 'https://bisiktangan.my.id/api/alphabet/storage/${item['video_url']}'
+                                                ? 'https://bisiktangan.my.id/storage/${item['video_url']}'
                                                 : null,
                                           ),
                                         ),
