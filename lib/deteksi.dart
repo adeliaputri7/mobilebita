@@ -71,7 +71,7 @@ class DeteksiPageState extends State<DeteksiPage> {
   }
 
   Future<void> sendVideoToServer(File videoFile) async {
-    final uri = Uri.parse('http://10.10.181.69:5000/detect_gesture');
+    final uri = Uri.parse('http://192.168.0.102:5000/detect_gesture');
 
     try {
       var request = http.MultipartRequest('POST', uri);

@@ -294,7 +294,9 @@ class _RegisterPageState extends State<RegisterPage> {
                     child: const Text(
                       'Login disini !',
                       style: TextStyle(
-                          color: Colors.blue, fontWeight: FontWeight.bold),
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   )
                 ],
