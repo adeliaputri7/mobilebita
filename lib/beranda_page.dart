@@ -9,8 +9,6 @@ import 'deteksi.dart';
 import 'transcrib.dart';
 import 'kamus.dart';
 
-
-
 class User {
   final String name;
 
@@ -295,26 +293,6 @@ class _BerandaPageState extends State<BerandaPage> {
             const SizedBox(height: 30),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        selectedItemColor: const Color(0xFF253A7D),
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Beranda',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bookmark),
-            label: 'Informasi',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profil',
-          ),
-        ],
       ),
     );
   }

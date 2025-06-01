@@ -23,7 +23,8 @@ class _InformasiPageState extends State<InformasiPage> {
   Future<void> fetchInformasi() async {
     try {
       final response = await http.get(
-        Uri.parse('https://bisiktangan.my.id/api/informasi'), // Sesuaikan endpoint
+        Uri.parse(
+            'https://bisiktangan.my.id/api/informasi'), // Sesuaikan endpoint
       );
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
