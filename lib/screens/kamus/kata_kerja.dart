@@ -68,13 +68,6 @@ class _KataKerjaScreenState extends State<KataKerjaScreen> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                Center(
-                  child: Image.asset(
-                    'assets/kerja.png',
-                    height: 80,
-                    fit: BoxFit.contain,
-                  ),
-                ),
               ],
             ),
           ),

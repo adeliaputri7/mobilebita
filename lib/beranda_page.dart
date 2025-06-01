@@ -86,7 +86,7 @@ class _BerandaPageState extends State<BerandaPage> {
     if (token == null) throw Exception('Token tidak ditemukan');
 
     final response = await http.get(
-      Uri.parse('http://10.10.180.39:8000/api/user'),
+      Uri.parse('https://bisiktangan.my.id/api/user'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',

@@ -74,11 +74,6 @@ class _AlfabetScreenState extends State<AlfabetScreen> {
                   ],
                 ),
                 SizedBox(height: 20),
-                Image.asset(
-                  'assets/abc.png',
-                  height: 80,
-                  fit: BoxFit.contain,
-                ),
               ],
             ),
           ),
