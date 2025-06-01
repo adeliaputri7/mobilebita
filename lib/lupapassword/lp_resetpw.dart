@@ -1,11 +1,18 @@
-class BuatPasswordBaruPage extends StatelessWidget {
-  const BuatPasswordBaruPage({super.key});
+import 'package:flutter/material.dart';
+import 'lp_pwbaru.dart'; // Halaman buat password baru
+
+class PasswordResetPage extends StatelessWidget {
+  final String email;
+  final String otp;
+
+  const PasswordResetPage({
+    Key? key,
+    required this.email,
+    required this.otp,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final passwordController = TextEditingController();
-    final confirmPasswordController = TextEditingController();
-
     return Scaffold(
       backgroundColor: const Color(0xFFF3D4D4),
       body: Center(
@@ -25,7 +32,7 @@ class BuatPasswordBaruPage extends StatelessWidget {
                   child: IconButton(
                     icon: const Icon(Icons.arrow_back),
                     onPressed: () {
-                      Navigator.pop(context); // Kembali ke halaman sebelumnya
+                      Navigator.pop(context);
                     },
                   ),
                 ),
@@ -33,33 +40,14 @@ class BuatPasswordBaruPage extends StatelessWidget {
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Buat Password Baru',
+                    'Reset Password',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    hintText: 'Password baru',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: confirmPasswordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    hintText: 'Konfirmasi password',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                  ),
+                const Text(
+                  'Konfirmasi bahwa Anda ingin mereset password. Klik tombol di bawah untuk melanjutkan.',
+                  style: TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 24),
                 SizedBox(
@@ -75,26 +63,18 @@ class BuatPasswordBaruPage extends StatelessWidget {
                       shadowColor: Colors.black45,
                     ),
                     onPressed: () {
-                      // Validasi sederhana
-                      if (passwordController.text.isEmpty ||
-                          confirmPasswordController.text.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Semua kolom wajib diisi')),
-                        );
-                      } else if (passwordController.text != confirmPasswordController.text) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Password tidak cocok')),
-                        );
-                      } else {
-                        // Lanjut ke halaman login atau home
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Password berhasil dibuat')),
-                        );
-                        Navigator.popUntil(context, (route) => route.isFirst); // kembali ke awal
-                      }
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => BuatPasswordBaruPage(
+                            email: email,
+                            otp: otp,
+                          ),
+                        ),
+                      );
                     },
                     child: const Text(
-                      'Simpan Password',
+                      'Lanjut',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
