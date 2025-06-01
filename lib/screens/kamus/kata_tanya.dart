@@ -20,7 +20,7 @@ class _KataTanyaScreenState extends State<KataTanyaScreen> {
 
   Future<void> fetchKataTanya() async {
     final url = Uri.parse(
-        'http://10.10.180.39:8000/api/katatanya'); // Ganti sesuai URL API kamu
+        'https://bisiktangan.my.id/api/katatanya'); // Ganti sesuai URL API kamu
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {

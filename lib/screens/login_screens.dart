@@ -83,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final url = Uri.parse(
-          'http://10.10.180.39:8000/api/login'); // Tambahkan port 8000
+          'https://bisiktangan.my.id/api/login'); // Tambahkan port 8000
 
       final response = await http
           .post(

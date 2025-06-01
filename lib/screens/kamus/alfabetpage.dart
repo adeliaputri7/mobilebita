@@ -24,7 +24,7 @@ class _AlfabetPageState extends State<AlfabetPage> {
 Future<void> fetchAlphabet() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.10.180.39:8000/api/alphabet'),
+        Uri.parse('https://bisiktangan.my.id/api/alphabet'),
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',

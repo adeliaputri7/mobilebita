@@ -21,7 +21,7 @@ class _AlfabetScreenState extends State<AlfabetScreen> {
 
   Future<void> fetchAlphabet() async {
     try {
-      final url = Uri.parse('http://10.10.180.39:8000/api/alphabet');
+      final url = Uri.parse('https://bisiktangan.my.id/api/alphabet');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -117,10 +117,10 @@ class _AlfabetScreenState extends State<AlfabetScreen> {
                                             bahasaIsyarat:
                                                 item['deskripsi'] ?? '',
                                             gambarUrl: item['gambar'] != null
-                                                ? 'http://10.10.180.39:8000/api/alphabet/storage/${item['gambar']}'
+                                                ? 'https://bisiktangan.my.id/api/alphabet/storage/${item['gambar']}'
                                                 : null,
                                             videoUrl: item['video_url'] != null
-                                                ? 'http://10.10.180.39:8000/api/alphabet/storage/${item['video_url']}'
+                                                ? 'https://bisiktangan.my.id/api/alphabet/storage/${item['video_url']}'
                                                 : null,
                                           ),
                                         ),
