@@ -1,26 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/login_screens.dart';
 import 'profil_page.dart';
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Profile Screen',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: const Color(0xFFF5F0FF),
-        fontFamily: 'Roboto',
-      ),
-      home: const ProfileScreen(),
-    );
-  }
-}
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -39,12 +22,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   DateTime? selectedDate;
 
   @override
-  void dispose() {
-    _usernameController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
-    _dobController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _usernameController.text = prefs.getString('username') ?? '';
+      _emailController.text = prefs.getString('email') ?? '';
+      _phoneController.text = prefs.getString('phone') ?? '';
+      _dobController.text = prefs.getString('dob') ?? '';
+      selectedGender = prefs.getString('gender');
+    });
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -60,6 +51,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _dobController.text = DateFormat('dd/MM/yyyy').format(picked);
       });
     }
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _dobController.dispose();
+    super.dispose();
   }
 
   @override
@@ -91,7 +91,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             children: [
               const SizedBox(height: 20),
-              // Profile Image
               Center(
                 child: Container(
                   width: 100,
@@ -101,26 +100,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     shape: BoxShape.circle,
                   ),
                   child: const Center(
-                    child: Icon(
-                      Icons.person,
-                      size: 60,
-                      color: Colors.white,
-                    ),
+                    child: Icon(Icons.person, size: 60, color: Colors.white),
                   ),
                 ),
               ),
               const SizedBox(height: 15),
-              const Text(
-                'Safina Adelia',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              Text(
+                _usernameController.text,
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 6),
-              const Text(
-                'safinaadelia@gmail.com',
-                style: TextStyle(color: Colors.grey, fontSize: 14),
+              Text(
+                _emailController.text,
+                style: const TextStyle(color: Colors.grey, fontSize: 14),
               ),
               const SizedBox(height: 30),
-
               _buildTextField(
                   label: 'Username', controller: _usernameController),
               _buildTextField(label: 'Email', controller: _emailController),
@@ -135,56 +130,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const Icon(Icons.flag),
                 ),
               ),
-
               _buildGenderDropdown(),
               _buildDateField(),
-
               const SizedBox(height: 30),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Implement logic to save/update profile
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    'Perbarui profil',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
+              ElevatedButton(
+                onPressed: () {
+                  // Tambahkan logika perbarui profil jika perlu
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  minimumSize: const Size.fromHeight(50),
+                ),
+                child: const Text(
+                  'Perbarui Profil',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
-              const SizedBox(height: 40),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: OutlinedButton(
-                  onPressed: () {
-                    // Navigasi ke halaman login
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const LoginPage()),
-                    );
-                  },
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.blue),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    'Keluar / Login Ulang',
-                    style: TextStyle(
-                      color: Colors.blue,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+              const SizedBox(height: 20),
+              OutlinedButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                  );
+                },
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.blue),
+                  minimumSize: const Size.fromHeight(50),
+                ),
+                child: const Text(
+                  'Keluar / Login Ulang',
+                  style: TextStyle(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),

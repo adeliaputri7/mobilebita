@@ -8,6 +8,8 @@ import 'package:mobilebita/screens/register_screens.dart';
 import 'package:mobilebita/beranda_page.dart';
 import 'package:mobilebita/lupapassword/lp_email.dart';
 
+import 'package:mobilebita/home_page.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -136,7 +138,7 @@ class _LoginPageState extends State<LoginPage> {
 
           // Navigate dengan delay untuk menampilkan snackbar
           await Future.delayed(const Duration(milliseconds: 500));
-          Get.offAll(() => const BerandaPage());
+          Get.offAll(() => const HomePage());
         } else {
           Get.snackbar(
             "Error",
