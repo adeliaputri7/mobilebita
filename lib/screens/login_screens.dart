@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobilebita/screens/register_screens.dart';
 import 'package:mobilebita/beranda_page.dart';
+import 'package:mobilebita/lupapassword/lp_email.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -329,8 +330,11 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    // TODO: Implement forgot password
-                    Get.snackbar("Info", "Fitur lupa password belum tersedia");
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const EmailConfirmationPage()),
+                    );
                   },
                   child: const Text(
                     "Lupa Password ?",
