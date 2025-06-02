@@ -5,10 +5,9 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobilebita/screens/register_screens.dart';
-import 'package:mobilebita/beranda_page.dart';
+import 'package:mobilebita/home_page.dart';
 import 'package:mobilebita/lupapassword/lp_email.dart';
 
-import 'package:mobilebita/home_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -331,18 +330,15 @@ class _LoginPageState extends State<LoginPage> {
                   ],
                 ),
                 GestureDetector(
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const EmailConfirmationPage()),
-                    );
-                  },
-                  child: const Text(
-                    "Lupa Password ?",
-                    style: TextStyle(color: Colors.grey),
-                  ),
+               onTap: () {
+               Get.to(() => const EmailConfirmationPage());
+               },
+               child: const Text(
+              "Lupa Password ?",
+              style: TextStyle(color: Colors.grey),
                 ),
+              ),
+
               ],
             ),
             const SizedBox(height: 16),
