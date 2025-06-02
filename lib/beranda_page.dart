@@ -255,20 +255,20 @@ class _BerandaPageState extends State<BerandaPage> {
                               children: const [
                                 Text('Yuk belajar',
                                     style: TextStyle(
-                                        fontSize: 20,
+                                        fontSize: 30,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.white)),
                                 SizedBox(height: 10),
                                 Text('Coba Fitur Sekarang',
                                     style: TextStyle(
-                                        fontSize: 14, color: Colors.white)),
+                                        fontSize: 25, color: Colors.white)),
                               ],
                             ),
                           ),
                           Align(
                             alignment: Alignment.bottomCenter,
                             child: Image.asset('assets/person2.png',
-                                height: 100, fit: BoxFit.contain),
+                                height: 150, fit: BoxFit.contain),
                           )
                         ],
                       ),
