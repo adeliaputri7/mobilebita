@@ -83,12 +83,20 @@ class _EmailConfirmationPageState extends State<EmailConfirmationPage> {
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: verifyEmail,
-                    child: const Text('Verifikasi Email'),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 50),
-                    ),
+                  onPressed: verifyEmail,
+                 style: ElevatedButton.styleFrom(
+                 backgroundColor: Colors.blue, // Warna tombol biru
+                 minimumSize: const Size(double.infinity, 50),
+                 shape: RoundedRectangleBorder(
+                 borderRadius: BorderRadius.circular(8),
+                 ),
+                 ),
+                 child: const Text(
+                'Verifikasi Email',
+                 style: TextStyle(color: Colors.white), // Warna teks putih
+                 ),
                   ),
+
                 ],
               ),
       ),
