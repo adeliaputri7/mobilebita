@@ -34,7 +34,7 @@ class _VerifyCodePageState extends State<VerifyCodePage> {
     try {
       final response = await http.post(
         Uri.parse(
-            'https://localhost:8000/api/verify-otp'), // Ganti URL sesuai hosting kamu
+            'https:/ 10.10.183.189:8000/api/verify-otp'), // Ganti URL sesuai hosting kamu
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': widget.email,

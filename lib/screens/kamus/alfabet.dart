@@ -22,7 +22,12 @@ class _AlfabetScreenState extends State<AlfabetScreen> {
   Future<void> fetchAlphabet() async {
     try {
       final url = Uri.parse('https://bisiktangan.my.id/api/alphabet');
+      print('Mengirim GET request ke: $url');
+
       final response = await http.get(url);
+
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final decodedData = jsonDecode(response.body);
@@ -35,14 +40,14 @@ class _AlfabetScreenState extends State<AlfabetScreen> {
           loading = false;
           errorMessage = 'Gagal mengambil data: ${response.statusCode}';
         });
-        print('Error: ${response.body}');
+        print('Response Error: ${response.body}');
       }
     } catch (e) {
       setState(() {
         loading = false;
         errorMessage = 'Terjadi kesalahan: $e';
       });
-      print('Exception: $e');
+      print('Exception saat request: $e');
     }
   }
 
