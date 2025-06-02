@@ -288,7 +288,7 @@ class _RegisterPageState extends State<RegisterPage> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  const Text('Jika anda sudah punya akun, anda dapat'),
+                  const Text('Jika anda sudah punya akun, anda dapat '),
                   GestureDetector(
                     onTap: () => Get.to(() => const LoginPage()),
                     child: const Text(
@@ -298,7 +298,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
+                  )
                 ],
               ),
               const SizedBox(height: 24),
